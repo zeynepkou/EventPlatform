@@ -1,0 +1,483 @@
+﻿@model Yazlab2.Models.Etkinlik
+
+@{
+    ViewData["Title"] = "Etkinlik Bildirim Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-5 mb-5">
+    <div class="row">
+        <!-- Sol Taraf: Etkinlik Resmi ve Kaydol Butonu -->
+        <div class="col-md-4 p-0">
+            <div class="d-flex flex-column align-items-center sticky-top" style="top: 0; height: 80vh; background-color: #F0F8FF;">
+                <div style="width: 100%; height: calc(80vh - 120px); border-radius: 20px; overflow: hidden;">
+                    <img src="@(string.IsNullOrEmpty(Model.EtkinlikResmi) ? "/images/default-event.png" : Model.EtkinlikResmi)"
+                         alt="Etkinlik Resmi"
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <!-- Etkinlik Adı -->
+                <div class="row row mb-3">
+                    <p class="text-center" style="font-size: calc(1rem * 3); font-weight: bold; color: #4a69bd; margin-bottom: 20px;"></i>@Model.EtkinlikAdi</p>
+                </div>
+
+                 <!-- Kullanıcı etkinliğe katılmış ve etkinlik geçmişte -->
+                <div class="w-100 text-center mt-3">
+                    <button class="btn btn-secondary w-75" style="border-radius: 8px;" disabled>Etkinliğe katıldınız ve gerçekleşti</button>
+                </div>
+                <div class="rating mt-3">
+                    <form asp-action="AddYildizPuan" asp-controller="EtkinlikDetay" method="post" id="ratingForm">
+                        <input type="hidden" name="etkinlikId" value="@Model.ID">
+                        <input type="hidden" name="yildizPuan" id="yildizPuan" value="@ViewBag.KullaniciPuani">
+                        <div class="stars">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="mt-3 text-center">
+                    <p><strong>Ortalama Puan:</strong> @(Model.YildizPuaniSayisi > 0 ? (Model.ToplamYildizPuani / Model.YildizPuaniSayisi).ToString("0.0") : "Henüz Puanlanmamış")</p>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Sağ Taraf: Detaylar, Rota ve Sohbet Alanı -->
+        <div class="col-md-8">
+            <!-- Etkinlik Detayları -->
+            <div class="card mb-4" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="card-header text-white text-center" style="background-color: #7089CB; border-radius: 12px 12px 0 0;">
+                    <h5 class="card-title mb-0">Etkinlik Detayları</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Açıklama -->
+                    <div class="row">
+                        <p><strong>Açıklama:</strong> @Model.Aciklama</p>
+                    </div>
+
+                    <!-- Tarih ve Saat -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><i class="fas fa-calendar me-2"></i><strong>Tarih:</strong> @Model.Tarih.ToString("yyyy-MM-dd")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><i class="fas fa-clock me-2"></i><strong>Saat:</strong> @Model.Saat</p>
+                        </div>
+                    </div>
+
+                    <!-- Süre ve Kategori -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><i class="fas fa-hourglass-half me-2"></i><strong>Süre:</strong> @Model.EtkinlikSuresi</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><i class="fas fa-tags me-2"></i><strong>Kategori:</strong> @Model.Kategori.Ad</p>
+                        </div>
+                    </div>
+
+                    <!-- Konum -->
+                    <div class="row">
+                        <p><i class="fas fa-map-marker-alt me-2"></i><strong>Konum:</strong> @Model.Konum</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Etkinlik Rotası -->
+            <div class="card mb-4" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="card-header text-white text-center" style="background-color: #4a69bd; border-radius: 12px 12px 0 0;">
+                    <h5 class="card-title mb-0">Rota ve Ulaşım Süresi</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 300px; border-radius: 8px;"></div>
+                    <button id="calculateRoute" class="btn btn-primary mt-3 w-100" style="background-color: #4a69bd; border-radius: 8px;">Rota Hesapla</button>
+                    <div class="mt-3 d-flex justify-content-between">
+                        <button id="modeWalking" class="btn btn-secondary" style="background-color: #4ecdc4; border: none;">Yürüyerek</button>
+                        <button id="modeDriving" class="btn btn-secondary" style="background-color: #ff6b6b; border: none;">Arabayla</button>
+                        <button id="modeCycling" class="btn btn-secondary" style="background-color: #f7b731; border: none;">Bisikletle</button>
+                    </div>
+                    <div id="routeDetails" class="mt-3 text-center"></div>
+                </div>
+            </div>
+
+            <!-- Sohbet Alanı -->
+            <div class="card" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="card-header text-white text-center" style="background-color: #7089CB; border-radius: 12px 12px 0 0;">
+                    <h5 class="card-title mb-0">Sohbet Alanı</h5>
+                </div>
+                <div class="card-body">
+                    <div class="message-container" style="max-height: 300px; overflow-y: auto;">
+                        @if (Model.Mesajlar != null && Model.Mesajlar.Any())
+                        {
+                            @foreach (var mesaj in Model.Mesajlar.OrderBy(m => m.GonderimZamani))
+                            {
+                                <div class="d-flex align-items-start mb-3">
+                                    <!-- Kullanıcı Profil Fotoğrafı -->
+                                    <img src="@(string.IsNullOrEmpty(mesaj.Gonderici.ProfilFotografiYolu)
+                  ? "/images/default-profile.png"
+                  : mesaj.Gonderici.ProfilFotografiYolu)"
+                                         alt="@mesaj.Gonderici.Ad"
+                                         class="rounded-circle"
+                                         style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;" />
+
+                                    <!-- Mesaj Bilgileri -->
+                                    <div>
+                                        <p class="mb-1"><strong>@mesaj.Gonderici.Ad</strong></p>
+                                        <p class="mb-1">@mesaj.MesajMetni</p>
+                                        <small class="text-muted">@mesaj.GonderimZamani.ToString("yyyy-MM-dd HH:mm")</small>
+                                    </div>
+                                </div>
+                                <hr>
+                            }
+                        }
+                        else
+                        {
+                            <p>Bu etkinlik için henüz mesaj yok.</p>
+                        }
+                    </div>
+
+
+                    <!-- Mesaj Gönderme Formu -->
+                    <form asp-controller="EtkinlikDetay" asp-action="AddMesaj" method="post" class="mt-3">
+                        <input type="hidden" name="etkinlikId" value="@Model.ID" />
+                        <div class="input-group">
+                            <input type="text" name="mesajIcerik" class="form-control" placeholder="Mesajınızı yazın..." required />
+                            <button class="btn btn-primary" type="submit" style="background-color: #4a69bd;">Gönder</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Geri Bildirim Alanı -->
+            <div class="card mt-4" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="card-header text-white text-center" style="background-color: #7089CB; border-radius: 12px 12px 0 0;">
+                    <h5 class="card-title mb-0">Geri Bildirimler</h5>
+                </div>
+                <div class="card-body">
+                    <div id="geriBildirimListesi" style="max-height: 300px; overflow-y: auto;">
+                        @if (Model.GeriBildirimler != null && Model.GeriBildirimler.Any())
+                        {
+                            @foreach (var geriBildirim in Model.GeriBildirimler.OrderByDescending(g => g.GonderimZamani))
+                            {
+                                <div class="d-flex align-items-start mb-3">
+                                    <!-- Kullanıcı Profil Fotoğrafı -->
+                                    <img src="@(string.IsNullOrEmpty(geriBildirim.Gonderici.ProfilFotografiYolu)
+                        ? "/images/default-profile.png"
+                        : geriBildirim.Gonderici.ProfilFotografiYolu)"
+                                         alt="@geriBildirim.Gonderici.KullaniciAdi"
+                                         class="rounded-circle"
+                                         style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;" />
+
+                                    <!-- Geri Bildirim Bilgileri -->
+                                    <div>
+                                        <p class="mb-1"><strong>@geriBildirim.Gonderici.KullaniciAdi</strong></p>
+                                        <p class="mb-1">@geriBildirim.GeriBidirimMetni</p>
+                                        <small class="text-muted">@geriBildirim.GonderimZamani.ToString("dd.MM.yyyy HH:mm")</small>
+                                    </div>
+                                </div>
+                                <hr />
+                            }
+                        }
+                        else
+                        {
+                            <p>Henüz geri bildirim yok.</p>
+                        }
+                    </div>
+
+                    <!-- Geri Bildirim Gönderme Formu -->
+                    <form asp-action="AddGeriBildirim" asp-controller="EtkinlikDetay" method="post" class="mt-3">
+                        <input type="hidden" name="etkinlikId" value="@Model.ID" />
+                        <div class="input-group">
+                            <textarea name="geriBildirimMetni" class="form-control" placeholder="Geri bildiriminizi yazın..." required></textarea>
+                            <button class="btn btn-primary" type="submit" style="background-color: #4a69bd;">Gönder</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS ve JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<!-- Leaflet Routing Machine CSS ve JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+
+<script>
+
+    // Haritayı başlatma ve başlangıç görünümünü ayarlama
+    var map = L.map('map').setView([40.80338884875475, 29.42076910742636], 13); // Etkinlik konumuna yakın başlangıç görünümü
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    var etkinlikKonum = "@Model.Konum";
+    // Etkinlik konumu varsa, haritada göster
+    if (etkinlikKonum && etkinlikKonum.includes("Lat") && etkinlikKonum.includes("Lng")) {
+        var etkinlikCoords = etkinlikKonum.match(/[-+]?[0-9]*\.?[0-9]+/g);
+        var eventLat = parseFloat(etkinlikCoords[0]);
+        var eventLng = parseFloat(etkinlikCoords[1]);
+
+        // Etkinlik konumunu haritada göster
+        L.marker([eventLat, eventLng]).addTo(map).bindPopup("Etkinlik Konumu").openPopup();
+        map.setView([eventLat, eventLng], 13); // Etkinlik konumuna yakınlaş
+    } else {
+        console.error("Geçersiz etkinlik konumu:", etkinlikKonum);
+        alert("Etkinlik konumu geçersiz!");
+    }
+
+
+    fetch('/EtkinlikDetay/GetUserLocation') // Backend'deki API endpointini çağır
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Konumu al ve haritada göster
+                var konumArray = data.location.split(',');
+                var userLat = parseFloat(konumArray[0].replace('Lat: ', '').trim());
+                var userLng = parseFloat(konumArray[1].replace('Lng: ', '').trim());
+
+                // Kullanıcı konumunu haritada işaretle
+                var userMarker = L.marker([userLat, userLng])
+                    .addTo(map)
+                    .bindPopup("Sizin Konumunuz")
+                    .openPopup();
+
+                // Haritayı kullanıcı konumuna ayarla
+                map.setView([userLat, userLng], 13);
+
+                // Kullanıcı konumunu global değişkenlere ata (rota için)
+                window.userLat = userLat;
+                window.userLng = userLng;
+            } else {
+                console.error(data.message);
+                alert("Kullanıcı konumu alınamadı: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Konum API hatası:", error);
+            alert("Konum alınırken bir hata oluştu.");
+        });
+    function decodePath(encoded, precision = 1e-5) {
+        let index = 0, lat = 0, lng = 0, polyline = [], shift = 0, result = 0, byte = null;
+
+        while (index < encoded.length) {
+            shift = 0;
+            result = 0;
+            do {
+                byte = encoded.charCodeAt(index++) - 63;
+                result |= (byte & 0x1f) << shift;
+                shift += 5;
+            } while (byte >= 0x20);
+            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+            shift = 0;
+            result = 0;
+            do {
+                byte = encoded.charCodeAt(index++) - 63;
+                result |= (byte & 0x1f) << shift;
+                shift += 5;
+            } while (byte >= 0x20);
+            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+            polyline.push([lat * precision, lng * precision]);
+        }
+        return polyline;
+    }
+
+    function getRoute(mode) {
+        if (userLat && userLng) {
+            const url = `https://graphhopper.com/api/1/route?point=${userLat},${userLng}&point=${eventLat},${eventLng}&type=json&locale=en&vehicle=${mode}&key=2c53d99b-7aec-42bd-9d9e-44d8eadfe98f`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("GraphHopper API Yanıtı:", data);
+
+                    if (data.paths && data.paths.length > 0) {
+                        const route = data.paths[0];
+
+                        if (route.points_encoded) {
+                            const latLngs = decodePath(route.points);
+                            console.log("Çözülmüş Koordinatlar:", latLngs);
+
+                            // Mevcut rotayı temizle
+                            if (window.currentPolyline) {
+                                map.removeLayer(window.currentPolyline);
+                            }
+
+                            // Renkleri belirle
+                            let color;
+                            if (mode === "foot") {
+                                color = "green";
+                            } else if (mode === "car") {
+                                color = "purple";
+                            } else if (mode === "bike") {
+                                color = "blue";
+                            }
+
+                            // Yeni rota çiz
+                            window.currentPolyline = L.polyline(latLngs, { color: color, weight: 5 }).addTo(map);
+                            map.fitBounds(window.currentPolyline.getBounds());
+
+                            // Süreyi ekrana yazdır
+                            const timeInMinutes = route.time / 60000;
+                            document.getElementById("routeDetails").innerHTML = `<strong>${mode}:</strong> ${Math.round(timeInMinutes)} dakika`;
+
+                            // Talimatları ekrana yazdır
+                            const instructions = route.instructions;
+
+                            // Harita üzerindeki talimat kutusunu temizle veya oluştur
+                            let instructionsDiv = document.getElementById("mapInstructions");
+                            if (!instructionsDiv) {
+                                instructionsDiv = document.createElement("div");
+                                instructionsDiv.id = "mapInstructions";
+                                instructionsDiv.style = `
+                                        position: absolute;
+                                        top: 10px;
+                                        right: 10px;
+                                        background: white;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        max-height: 400px;
+                                        overflow-y: auto;
+                                        z-index: 1000;
+                                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                                    `;
+                                map.getContainer().appendChild(instructionsDiv);
+                            }
+
+                            // Talimatları doldur
+                            instructionsDiv.innerHTML = `
+                                    <button id="closeInstructions" style="float: right; border: none; background: none; color: red; font-size: 16px; cursor: pointer;">✖</button>
+                                    <h4>Talimatlar</h4>
+                                `;
+                            instructions.forEach((step, index) => {
+                                instructionsDiv.innerHTML += `
+                                        <p><strong>${index + 1}.</strong> ${step.text} (Mesafe: ${Math.round(step.distance)}m)</p>`;
+                            });
+
+                            // Talimatları kapatma özelliği
+                            document.getElementById("closeInstructions").addEventListener("click", () => {
+                                instructionsDiv.remove();
+                            });
+                        } else {
+                            alert("Rota koordinatları kodlanmış değil.");
+                        }
+                    } else {
+                        alert("Rota bulunamadı. Lütfen farklı bir mod veya konum deneyin.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch Hatası:", error);
+                    alert("Rota hesaplanırken bir hata oluştu.");
+                });
+        } else {
+            alert("Kullanıcı konumu alınamadı.");
+        }
+    }
+
+
+    // Mod seçimini dinleyin ve rota hesaplayın
+    document.getElementById('calculateRoute').addEventListener('click', function () {
+        getRoute('foot');
+    });
+    document.getElementById('modeWalking').addEventListener('click', function () {
+        getRoute('foot');
+    });
+    document.getElementById('modeDriving').addEventListener('click', function () {
+        getRoute('car');
+    });
+    document.getElementById('modeCycling').addEventListener('click', function () {
+        getRoute('bike');
+    });
+</script>
+
+<script>
+    const stars = document.querySelectorAll('.rating .star');
+    const kullaniciPuani = parseInt('@ViewBag.KullaniciPuani') || 0;
+
+    // Sayfa yüklendiğinde kullanıcı puanına göre yıldızları sarı yap
+    if (kullaniciPuani > 0) {
+        for (let i = 0; i < kullaniciPuani; i++) {
+            stars[i].classList.add('selected');
+        }
+    }
+
+    stars.forEach((star, index) => {
+        // Tıklama olayı
+        star.addEventListener('click', function () {
+            const ratingValue = parseInt(this.getAttribute('data-value'));
+
+            // Tüm yıldızları gri yap
+            stars.forEach(s => s.classList.remove('selected'));
+
+            // Tıklanan yıldız kadarını sarı yap
+            for (let i = 0; i < ratingValue; i++) {
+                stars[i].classList.add('selected');
+            }
+
+            // Formu otomatik gönder
+            document.getElementById('yildizPuan').value = ratingValue;
+            document.getElementById('ratingForm').submit();
+        });
+
+        // Hover efekti
+        star.addEventListener('mouseover', function () {
+            const hoverValue = parseInt(this.getAttribute('data-value'));
+
+            // Hover edilen yıldız kadarını sarı yap
+            stars.forEach((s, idx) => {
+                if (idx < hoverValue) {
+                    s.classList.add('hover');
+                } else {
+                    s.classList.remove('hover');
+                }
+            });
+        });
+
+        // Hoverdan çıkıldığında renkleri sıfırla
+        star.addEventListener('mouseout', function () {
+            stars.forEach(s => s.classList.remove('hover'));
+        });
+    });
+</script>
+
+
+
+
+<style>
+    .rating .stars {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .rating .star {
+        font-size: 2rem;
+        color: gray;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+        /* Seçili yıldızlar (tıklama sonrası) */
+        .rating .star.selected {
+            color: rgb(255, 201, 14); /* Görseldeki sarı renk */
+        }
+
+        /* Hover edilen yıldızlar */
+        .rating .star.hover {
+            color: rgb(255, 220, 50); /* Hover sırasında açık sarı */
+        }
+</style>
+
+
+
+
+

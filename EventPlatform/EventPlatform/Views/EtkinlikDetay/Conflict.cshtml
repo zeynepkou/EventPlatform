@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Yazlab2.Models.Etkinlik>
+
+<h2 class="text-center mb-4">Çakışan Etkinlik Tespit Edildi</h2>
+<p class="alert alert-warning text-center">@TempData["ConflictMessage"]</p>
+
+<div class="mb-5">
+    <h4 class="text-center mb-3">Aynı Gün Olan Çakışmayan Etkinlikler:</h4>
+    @if (Model != null && Model.Any())
+    {
+        <div class="row justify-content-center">
+            @foreach (var etkinlik in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-light">
+                        <!-- Displaying the actual event image -->
+                        <img src="@etkinlik.EtkinlikResmi" class="card-img-top" alt="Etkinlik Görseli" />
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@etkinlik.EtkinlikAdi</h5>
+                            <p class="card-text">
+                                <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString() <br />
+                                <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm") <br />
+                                <strong>Konum:</strong> @etkinlik.Konum <br />
+                                <strong>Kategori:</strong> @etkinlik.Kategori
+                            </p>
+                            <a href="@Url.Action("Index", "EtkinlikDetay", new { id = etkinlik.ID })" class="btn btn-primary w-100">Detayları Gör</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center">Bu tarihte çakışmayan başka bir etkinlik bulunmamaktadır.</p>
+    }
+</div>
+
+
+

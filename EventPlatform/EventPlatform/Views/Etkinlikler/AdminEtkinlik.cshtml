@@ -1,0 +1,283 @@
+﻿@model List<Yazlab2.Models.Etkinlik>
+@{
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Etkinlik Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bu etkinliğe katılan kullanıcılar var. Silmek istediğinize emin misiniz?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <form id="deleteForm" method="post" asp-action="DeleteEvent" asp-controller="Admin">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="eventId" id="eventId" />
+                    <input type="hidden" name="forceDelete" value="true" />
+                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" style="background-color: #F0F8FF; min-height: 100vh; padding: 20px;">
+    <div class="container">
+        <h3 class="text-center" style="color: black;">Filtreleme</h3>
+        <form method="GET" action="/Etkinlikler/FiltreleAdmin" id="filter-form" style="margin-bottom: 20px;">
+            <div class="row">
+                <!-- İlgi Alanı Dropdown -->
+                <div class="col-md-6 mb-3">
+                    <label for="ilgiAlani" class="form-label">İlgi Alanı</label>
+                    <select id="ilgiAlani" name="ilgiAlaniId" class="form-control">
+                        <option value="">Tüm İlgi Alanları</option>
+                        @if (ViewBag.IlgiAlanlari != null)
+                        {
+                            foreach (var ilgiAlani in ViewBag.IlgiAlanlari)
+                            {
+                                <option value="@ilgiAlani.ID">@ilgiAlani.Ad</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">İlgi alanları yüklenemedi</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Kategori Dropdown -->
+                <div class="col-md-6 mb-3">
+                    <label for="kategori" class="form-label">Kategori</label>
+                    <select id="kategori" name="kategoriId" class="form-control" disabled>
+                        <option value="">Önce İlgi Alanı Seçiniz</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Filtrele</button>
+        </form>
+
+        <div class="container mt-4">
+            <h3 class="text-center" style="color: black;">Arama</h3>
+            <form method="GET" action="/Etkinlikler/Ara2" id="search-form">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="arama" class="form-label">Etkinlik Adı</label>
+                        <input type="text" id="arama" name="arama" class="form-control" placeholder="Etkinlik adını girin...">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Ara</button>
+            </form>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="container-fluid" style="background-color: #F0F8FF; min-height: 100vh; padding: 20px;">
+        <div class="container">
+            <h3 class="text-center" style="color: black;">Etkinlikler</h3>
+
+            <!-- Filtreleme Butonları -->
+            <div class="btn-group mb-4" role="group" aria-label="Filtreleme">
+                <button type="button" class="btn btn-primary btn-lg btn-rounded shadow-sm" id="gecmis" onclick="filterEtkinlikler('gecmis')">
+                    <i class="bi bi-calendar-x me-2"></i> Geçmiş Etkinlikler
+                </button>
+                <button type="button" class="btn btn-success btn-lg btn-rounded shadow-sm" id="yeni" onclick="filterEtkinlikler('yeni')">
+                    <i class="bi bi-calendar-check me-2"></i> Yeni Etkinlikler
+                </button>
+            </div>
+
+        </div>
+
+        <div class="container mt-4">
+            <!-- Etkinlik Kartları -->
+            <div class="row" id="etkinlikler-container">
+                @foreach (var etkinlik in Model)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 etkinlik-card" data-tarih="@etkinlik.Tarih" data-saat="@etkinlik.Saat">
+                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 540px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+                                <p style="color: #000000;">
+                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                </p>
+                                <p style="color: #000000;">
+                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                </p>
+                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Konum:</strong> @etkinlik.Konum
+                                </p>
+                                <p class="favori-sayisi" style="color: #000000; font-size: 1.2rem; margin-top: 10px;">
+                                    <i class="bi bi-heart-fill" style="color: red;"></i> Favorilenme Sayısı: <span class="favori-sayisi-span">@etkinlik.FavoriSayisi</span>
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("AdminEditEtkinlik", "EtkinlikDetay", new { id = etkinlik.ID })"
+                                       class="btn btn-primary mb-0" style="background-color: #099B47; border: none; flex: 1; margin-right: 5px;">Düzenle</a>
+
+                                    <button type="button" class="btn btn-danger" onclick="confirmDelete(@etkinlik.ID)"
+                                            style="flex: 1;">
+                                        Sil
+                                    </button>
+                                </div>
+                                <a href="@Url.Action("AdminEtkinlikDetay", "EtkinlikDetay", new { id = etkinlik.ID })"
+                                   class="btn btn-primary"
+                                   style="background-color: #4a69bd; border: none; margin-top: 10px;">
+                                    Detayları Görüntüle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    document.getElementById('ilgiAlani').addEventListener('change', function () {
+        const ilgiAlaniId = this.value;
+        const kategoriDropdown = document.getElementById('kategori');
+        console.log("ilgi alanı ıd:", ilgiAlaniId);
+        if (!ilgiAlaniId) {
+            kategoriDropdown.innerHTML = '<option value="">Önce İlgi Alanı Seçiniz</option>';
+            kategoriDropdown.disabled = true;
+            return;
+        }
+        fetch(`/Etkinlikler/GetKategoriler?ilgiAlaniId=${ilgiAlaniId}`)
+            .then(response => response.json())
+            .then(data => {
+                const kategoriDropdown = document.getElementById('kategori');
+                kategoriDropdown.innerHTML = '<option value="">Tüm Kategoriler</option>'; // Varsayılan seçenek
+                data.forEach(kategori => {
+                    kategoriDropdown.innerHTML += `<option value="${kategori.id}">${kategori.ad}</option>`;
+                });
+                kategoriDropdown.disabled = false; // Dropdown aktif hale getir
+            })
+            .catch(err => console.error('Kategoriler yüklenirken hata oluştu:', err));
+
+
+    });
+</script>
+<script>
+    function filterEtkinlikler(filterType) {
+        const cards = document.querySelectorAll('.etkinlik-card');
+        const currentDate = new Date();
+
+        // Bugünün tarihini kontrol etmek için saat, dakika, saniye ve milisaniyeyi sıfırlıyoruz
+        currentDate.setHours(0, 0, 0, 0);
+
+        cards.forEach(card => {
+            const etkinlikTarihStr = card.getAttribute('data-tarih'); // Etkinlik tarihi (DD.MM.YYYY formatında)
+            const etkinlikSaat = card.getAttribute('data-saat'); // Etkinlik saati (HH:MM formatında)
+
+            // Etkinlik tarihini DD.MM.YYYY formatından YYYY-MM-DD formatına dönüştürme
+            const [day, month, year] = etkinlikTarihStr.split('.');
+            const etkinlikTarih = new Date(`${year}-${month}-${day}`);
+
+            // Saat ve dakikayı etkinlik tarihine ekle
+            const [hour, minute] = etkinlikSaat.split(':');
+            etkinlikTarih.setHours(hour, minute, 0, 0);  // Saat ve dakikayı ekliyoruz
+
+            // Karşılaştırma yapmak için etkinlik tarihinin sadece tarih kısmını kontrol ediyoruz
+            if (filterType === 'gecmis') {
+                // Geçmiş etkinlikler: Tarihi geçmiş olanlar
+                if (etkinlikTarih < currentDate) {
+                    card.style.display = 'block'; // Göster
+                } else {
+                    card.style.display = 'none'; // Gizle
+                }
+            } else if (filterType === 'yeni') {
+                // Yeni etkinlikler: Tarihi geçmemiş olanlar
+                if (etkinlikTarih >= currentDate) {
+                    card.style.display = 'block'; // Göster
+                } else {
+                    card.style.display = 'none'; // Gizle
+                }
+            }
+        });
+    }
+</script>
+
+
+<!-- Özel stil -->
+<style>
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 50px; /* Butonları yuvarlak yapmak için */
+        transition: all 0.3s ease; /* Buton hover geçişi */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hafif gölge */
+    }
+
+        .btn:hover {
+            transform: translateY(-2px); /* Hover efektinde butonu hafifçe yukarı kaldır */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Hoverda daha belirgin gölge */
+        }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    /* Butonlara ikon eklemek için */
+    .btn i {
+        font-size: 18px;
+    }
+</style>
+
+
+<style>
+    .hover-effect:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<<script>
+     function confirmDelete(eventId) {
+         document.getElementById("eventId").value = eventId;
+         var deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+         deleteModal.show();
+     }
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>

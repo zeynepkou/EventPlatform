@@ -1,0 +1,204 @@
+﻿@model Yazlab2.Models.Etkinlik
+
+@{
+    ViewData["Title"] = "Etkinlik Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-5 mb-5">
+    <div class="row">
+        <!-- Sol Taraf: Etkinlik Resmi ve Düzenle Butonu -->
+        <div class="col-md-4 p-0">
+            <div class="d-flex flex-column align-items-center sticky-top" style="top: 0; height: 80vh; background-color: #F0F8FF;">
+                <div style="width: 100%; height: calc(80vh - 120px); border-radius: 20px; overflow: hidden;">
+                    <img src="@(string.IsNullOrEmpty(Model.EtkinlikResmi) ? "/images/default-event.png" : Model.EtkinlikResmi)"
+                         alt="Etkinlik Resmi"
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+               
+
+                <!-- Etkinlik Adı -->
+                <div class="row row mb-3">
+                    <p class="text-center" style="font-size: calc(1rem * 3); font-weight: bold; color: #4a69bd; margin-bottom: 20px;"></i>@Model.EtkinlikAdi</p>
+                </div>
+
+                <!-- Düzenle Butonu -->
+                <div class="w-100 text-center mt-3">
+                    <button type="submit" form="editEtkinlikForm" class="btn btn-success w-75"
+                            style="border-radius: 8px; background-color: #4a69bd;">Değişiklikleri Kaydet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf: Etkinlik Düzenleme ve Konum Seç -->
+        <div class="col-md-8">
+            <!-- Etkinlik Düzenleme -->
+            <div class="card mb-4" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="card-header text-white text-center" style="background-color: #7089CB; border-radius: 12px 12px 0 0;">
+                    <h5 class="card-title mb-0">Etkinlik Düzenle</h5>
+                </div>
+                <div class="card-body">
+                    <form id="editEtkinlikForm" asp-action="EditEtkinlik" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="ID" />
+                        <!-- Etkinlik Resmi -->
+                        <div class="form-group">
+                            <label for="EtkinlikResmi">Etkinlik Resmi</label>
+                            <input type="file" id="EtkinlikResmi" name="EtkinlikResmi" class="form-control" accept="image/*" />
+                        </div>
+                        <!-- Etkinlik Adı -->
+                        <div class="form-group">
+                            <label>Etkinlik Adı</label>
+                            <input asp-for="EtkinlikAdi" class="form-control" />
+                        </div>
+
+                        <!-- Açıklama -->
+                        <div class="form-group">
+                            <i class="fas fa-info-circle me-2" style="color: #000000;"></i>
+                            <label>Açıklama</label>
+                            <textarea asp-for="Aciklama" class="form-control"></textarea>
+                        </div>
+
+                        <!-- Tarih -->
+                        <div class="form-group">
+                            <i class="fas fa-calendar-alt me-2" style="color: #000000;"></i>
+                            <label>Tarih</label>
+                            <input asp-for="Tarih" type="date" class="form-control" />
+                        </div>
+
+                        <!-- Saat -->
+                        <div class="form-group">
+                            <i class="fas fa-clock me-2" style="color: #000000;"></i>
+                            <label>Saat</label>
+                            <input asp-for="Saat" type="time" class="form-control" />
+                        </div>
+
+                        <!-- Etkinlik Süresi -->
+                        <div class="form-group">
+                            <i class="fas fa-hourglass-half me-2" style="color: #000000;"></i>
+                            <label>Etkinlik Süresi</label>
+                            <input asp-for="EtkinlikSuresi" type="text" class="form-control" />
+                        </div>
+
+                        <!-- Kategori -->
+                        <div class="form-group">
+                            <label for="KategoriID">Kategori</label>
+                            <select asp-for="KategoriID" class="form-control" asp-items="ViewBag.Kategoriler">
+                                <option value="">Bir kategori seçin</option>
+                            </select>
+                        </div>
+
+
+
+                        <!-- Konum -->
+                        <div class="form-group">
+                            <i class="fas fa-map-marker-alt me-2" style="color: #000000;"></i>
+                            <label>Konum</label>
+                            <input asp-for="Konum" class="form-control" id="location" readonly />
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            <!-- Konum Seç -->
+            <div class="card mb-4" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                <div class="card-header text-white text-center" style="background-color: #7089CB; border-radius: 12px 12px 0 0;">
+                    <h5 class="card-title mb-0">Konum Seç</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 300px; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS ve JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script>
+    // Etkinlik konumunu backend'den alınan string değerinden al
+    // Etkinlik konumunu backend'den alınan string değerinden al
+    var eventLocation = document.getElementById('location').value || "Lat: 40.80338884875475, Lng: 29.42076910742636";
+
+    // Konumu ayrıştır
+    var locationArray = eventLocation.split(',');
+    var eventLat = parseFloat(locationArray[0].replace('Lat: ', '').trim());
+    var eventLng = parseFloat(locationArray[1].replace('Lng: ', '').trim());
+
+    // Haritayı etkinlik konumu ile başlat
+    var map = L.map('map').setView([eventLat, eventLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Etkinlik konumu için bir marker ekle
+    var marker = L.marker([eventLat, eventLng]).addTo(map)
+        .bindPopup("Etkinlik Konumu")
+        .openPopup();
+
+    // Kullanıcının yeni konum seçmesini sağla
+    map.on('click', function (e) {
+        // Tıklanan yeri al
+        var selectedLat = e.latlng.lat;
+        var selectedLng = e.latlng.lng;
+
+        // Marker'ı güncelle
+        marker.setLatLng(e.latlng);
+
+        // Input alanını güncelle
+        document.getElementById('location').value = `Lat: ${selectedLat}, Lng: ${selectedLng}`;
+    });
+
+    fetch('/EtkinlikDetay/GetUserLocation') // Backend'deki API endpointini çağır
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Konumu al ve haritada göster
+                var konumArray = data.location.split(',');
+                var userLat = parseFloat(konumArray[0].replace('Lat: ', '').trim());
+                var userLng = parseFloat(konumArray[1].replace('Lng: ', '').trim());
+
+                // Kullanıcı konumunu haritada işaretle
+                var userMarker = L.marker([userLat, userLng])
+                    .addTo(map)
+                    .bindPopup("Sizin Konumunuz")
+                    .openPopup();
+
+                // Haritayı kullanıcı konumuna ayarla
+                map.setView([userLat, userLng], 13);
+            } else {
+                console.error(data.message);
+                alert("Kullanıcı konumu alınamadı: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Konum API hatası:", error);
+            alert("Konum alınırken bir hata oluştu.");
+        });
+
+</script>
+
+<style>
+    .form-group {
+        margin-bottom: 10px; /* Form alanları arasında daha fazla boşluk */
+    }
+
+    .card-body i {
+        font-size: 1.2rem; /* İkon boyutu */
+        margin-right: 8px; /* İkona sağ boşluk */
+    }
+</style>
+
+
+<script>
+    // Etkinlik Resmi önizleme
+    document.getElementById("EtkinlikResmi").addEventListener("change", function (event) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            document.querySelector("img[alt='Etkinlik Resmi']").src = e.target.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
+</script>

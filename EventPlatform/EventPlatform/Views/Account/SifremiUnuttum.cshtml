@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Şifremi Unuttum";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .image-container {
+            flex: 1;
+            text-align: center;
+            padding-right: 20px;
+        }
+
+            .image-container img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 15px;
+            }
+
+        .form-container {
+            flex: 1;
+            max-width: 400px;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background-color: #4a69bd;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+            .btn-primary:hover {
+                background-color: #3b5998;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Resim Sol Tarafa Yerleştirildi -->
+        <div class="image-container">
+            <img src="~/images/sifresifirla.png" alt="Şifre Sıfırlama" />
+        </div>
+
+        <!-- Form Sağ Tarafa Yerleştirildi -->
+        <div class="form-container">
+            <h3>Şifremi Unuttum</h3>
+            <form asp-action="SifremiUnuttum" method="post">
+                <div class="form-group">
+                    <label for="eposta">E-posta Adresi</label>
+                    <input type="email" class="form-control" id="eposta" name="eposta" placeholder="E-posta adresinizi girin" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3">Şifre Sıfırlama Bağlantısı Gönder</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

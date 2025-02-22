@@ -1,0 +1,309 @@
+﻿@model Yazlab2.Models.Etkinlik
+
+@{
+    ViewData["Title"] = "Yeni Etkinlik Ekle";
+}
+
+<div class="container">
+    <h1 class="text-center mb-4" style="color:black">Yeni Etkinlik Ekle</h1>
+
+    <div class="card p-4" style="border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <!-- Etkinlik Resmi -->
+            <div class="form-group mb-4 text-center">
+                <label for="EtkinlikResmi" class="form-label" style="font-size: 1.2rem; color: #4a69bd;">Etkinlik Resmi</label>
+
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <!-- Görsel önizleme alanı -->
+                    <div id="imageContainer" style="width: 300px; height: 300px; border: 2px dashed #ccc; border-radius: 10px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center;">
+                        <img id="imagePreview" src="#" alt="Görsel Yüklenmedi" style="max-width: 100%; max-height: 100%; display: none; border-radius: 10px;">
+                    </div>
+
+                    <!-- Dosya seçme alanı -->
+                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <input type="file" id="EtkinlikResmi" name="EtkinlikResmi" class="form-control" style="display: none;" accept="image/*" onchange="previewImage(event)">
+                        <label for="EtkinlikResmi" class="btn btn-primary" style="border-radius: 10px;">Dosya Seç</label>
+                        <span id="fileStatus" style="margin-top: 10px; font-size: 1rem; color: #6c757d;">Dosya seçilmedi</span>
+                    </div>
+                </div>
+
+                <span asp-validation-for="EtkinlikResmi" class="text-danger"></span>
+            </div>
+
+
+
+            <div class="form-group mb-4">
+                <label asp-for="EtkinlikAdi" class="control-label">Etkinlik Adı</label>
+                <input asp-for="EtkinlikAdi" class="form-control rounded-pill" placeholder="Etkinlik adını girin" required />
+                <span asp-validation-for="EtkinlikAdi" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Aciklama" class="control-label">Açıklama</label>
+                <textarea asp-for="Aciklama" class="form-control rounded-pill" placeholder="Etkinlik hakkında kısa bir açıklama girin" required></textarea>
+                <span asp-validation-for="Aciklama" class="text-danger"></span>
+            </div>
+
+            <div class="form-row align-items-center" style="display: flex; gap: 15px;">
+                <div class="form-group mb-4" style="flex: 1;">
+                    <label asp-for="Tarih" class="control-label">Tarih</label>
+                    <input asp-for="Tarih" type="date" class="form-control rounded-pill" required />
+                    <span asp-validation-for="Tarih" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-4" style="flex: 1;">
+                    <label asp-for="Saat" class="control-label">Saat</label>
+                    <input asp-for="Saat" type="time" class="form-control rounded-pill" required />
+                    <span asp-validation-for="Saat" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <div class="form-row align-items-center" style="display: flex; gap: 15px;">
+                <div class="form-group mb-4" style="flex: 1;">
+                    <label asp-for="EtkinlikSuresi" class="control-label">Etkinlik Süresi (saat)</label>
+                    <input asp-for="EtkinlikSuresi" type="time" class="form-control rounded-pill" required />
+                    <span asp-validation-for="EtkinlikSuresi" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-4" style="flex: 1;">
+                    <label asp-for="Konum" class="control-label">Konum</label>
+                    <input asp-for="Konum" class="form-control rounded-pill" placeholder="Konum seçmek için haritaya tıklayın" id="Konum" readonly required />
+                    <span asp-validation-for="Konum" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <div class="form-group mb-4">
+                <label for="IlgiAlanlari" class="control-label">İlgi Alanı</label>
+                <select id="IlgiAlanlari" class="form-control rounded-pill" onchange="fetchKategoriler(this.value)" required>
+                    <option value="">Bir ilgi alanı seçin</option>
+                    @foreach (var ilgiAlani in ViewBag.IlgiAlanlari)
+                    {
+                        <option value="@ilgiAlani.ID">@ilgiAlani.Ad</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="EtkinlikKategorileri" class="control-label">Etkinlik Kategorisi</label>
+                <select id="EtkinlikKategorileri" name="KategoriID" class="form-control rounded-pill" required>
+                    <option value="">Önce bir ilgi alanı seçin</option>
+                </select>
+                <p id="selectedCategory" style="margin-top: 10px; color: #4a69bd; font-weight: bold;"></p>
+                <!-- Modal yerine yönlendirme -->
+                <a href="@Url.Action("CreateIlgiAlani", "Create")" class="btn btn-link mt-2">
+                    Olmayan ilgi alanı veya etkinlik kategorisi eklemek ister misiniz?
+                </a>
+            </div>
+
+           
+
+
+            <div id="map" style="height: 300px; border-radius: 10px; margin-top: 20px;"></div> <!-- Harita Konteyneri -->
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill">Etkinliği Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Çakışma Uyarı Mesajı Modal -->
+<div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="conflictModalLabel">Uyarı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @TempData["ErrorMessage"]
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS ve JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+
+<script>
+    // Haritayı başlat
+    var map = L.map('map').setView([39.9334, 32.8597], 13); // Başlangıçta Ankara'nın koordinatları
+
+    // OpenStreetMap katmanı ekle
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var startMarker, endMarker, routeControl;
+
+    // Harita tıklandığında varış noktasını ayarlayın
+    map.on('click', function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        if (endMarker) {
+            map.removeLayer(endMarker);
+        }
+        endMarker = L.marker([lat, lng]).addTo(map);
+        document.getElementById("Konum").value = "Lat: " + lat + ", Lng: " + lng;
+
+        // Varış noktası değiştiğinde rota hesaplamayı güncelle
+        if (startMarker) {
+            calculateRoute(startMarker.getLatLng(), endMarker.getLatLng());
+        }
+    });
+
+    // Başlangıç noktasını kullanıcı konumuna ayarlayan fonksiyon
+    function setStartLocation(lat, lng) {
+        if (startMarker) {
+            map.removeLayer(startMarker);
+        }
+        startMarker = L.marker([lat, lng]).addTo(map);
+        map.setView([lat, lng], 13);
+
+        // Eğer varış noktası varsa rota hesapla
+        if (endMarker) {
+            calculateRoute(startMarker.getLatLng(), endMarker.getLatLng());
+        }
+    }
+
+    // Başlangıç ve varış noktaları arasında rota hesaplayan fonksiyon
+    function calculateRoute(start, end) {
+        if (routeControl) {
+            map.removeControl(routeControl);
+        }
+        routeControl = L.Routing.control({
+            waypoints: [
+                L.latLng(start.lat, start.lng),
+                L.latLng(end.lat, end.lng)
+            ],
+            routeWhileDragging: true,
+            showAlternatives: true,
+            altLineOptions: {
+                styles: [{ color: 'black', opacity: 0.15, weight: 9 }]
+            },
+            createMarker: function () { return null; } // Varsayılan işaretçileri gizlemek için
+        }).addTo(map);
+    }
+
+    // Örnek kullanım: Başlangıç noktasını ayarla (kullanıcı konumuyla değiştirilebilir)
+    setStartLocation(39.9334, 32.8597); // Başlangıç konumu (örneğin: Ankara)
+    // Kullanıcının mevcut konumunu başlatmak için Geolocation API
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            setStartLocation(position.coords.latitude, position.coords.longitude);
+        }, function (error) {
+            console.error("Konum alınırken hata oluştu: " + error.message);
+            alert("Konum bilgisi alınamadı. Lütfen konum izni verin.");
+        });
+    } else {
+        alert("Tarayıcınız konum bilgisini desteklemiyor.");
+    }
+
+    // resim
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const imagePreview = document.getElementById('imagePreview');
+        const imageContainer = document.getElementById('imageContainer');
+        const fileStatus = document.getElementById('fileStatus');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            imageContainer.style.backgroundColor = 'transparent';
+            imageContainer.style.border = 'none';
+            fileStatus.textContent = "Dosya seçildi";
+        } else {
+            imagePreview.style.display = 'none';
+            imageContainer.style.backgroundColor = '#f0f0f0';
+            imageContainer.style.border = '2px dashed #ccc';
+            fileStatus.textContent = "Dosya seçilmedi";
+        }
+    }
+
+</script>
+
+<script>
+    async function fetchKategoriler(ilgiAlaniId) {
+        const kategoriSelect = document.getElementById("EtkinlikKategorileri");
+        kategoriSelect.innerHTML = '<option value="">Kategori seçiliyor...</option>'; // İlk durumu temizle
+
+        if (!ilgiAlaniId) {
+            kategoriSelect.innerHTML = '<option value="">Önce bir ilgi alanı seçin</option>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Create/GetKategoriler?ilgiAlaniId=${ilgiAlaniId}`);
+            const data = await response.json();
+
+            console.log("Gelen Kategoriler:", data); // Gelen JSON'u kontrol et
+
+            if (data && data.length > 0) {
+                kategoriSelect.innerHTML = '<option value="">Bir kategori seçin</option>';
+                data.forEach(kategori => {
+                    const option = document.createElement("option");
+                    option.value = kategori.id; // JSON verisindeki `id` key'i
+                    option.textContent = kategori.ad; // JSON verisindeki `ad` key'i
+                    kategoriSelect.appendChild(option);
+                });
+            } else {
+                kategoriSelect.innerHTML = '<option value="">Bu ilgi alanına ait kategori bulunamadı</option>';
+            }
+        } catch (error) {
+            console.error("Kategoriler alınırken hata:", error);
+            kategoriSelect.innerHTML = '<option value="">Bir hata oluştu</option>';
+        }
+    }
+
+    // İlgi Alanı seçildiğinde kategorileri getir
+    document.getElementById("IlgiAlanlari").addEventListener("change", function () {
+        const selectedIlgiAlani = this.value;
+        console.log("Seçilen İlgi Alanı ID:", selectedIlgiAlani);
+
+        if (selectedIlgiAlani) {
+            fetchKategoriler(selectedIlgiAlani);
+        } else {
+            console.log("Lütfen bir ilgi alanı seçin.");
+        }
+    });
+
+    // Kategori seçildiğinde konsola yazdır
+    document.getElementById("EtkinlikKategorileri").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            console.log("Seçilen Kategori:", selectedOption.textContent);
+        } else {
+            console.log("Kategori seçilmedi.");
+        }
+    });
+
+</script>
+
+
+
+<style>
+    #Kategori {
+        color: black; /* Yazı rengini siyah yapar */
+    }
+
+        #Kategori option {
+            color: black; /* Dropdown'daki seçeneklerin rengini siyah yapar */
+        }
+</style>
+
+
+
+

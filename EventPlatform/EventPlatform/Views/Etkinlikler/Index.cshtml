@@ -1,0 +1,217 @@
+﻿@using System.Security.Claims
+
+@model IEnumerable<Yazlab2.Models.Etkinlik>
+
+@{
+    ViewData["Title"] = "Tüm Etkinlikler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Kullanıcı ID'sini al ve int'e çevir
+    var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var parsedUserId) ? parsedUserId : 0;
+}
+
+
+<form id="csrf-token-form">
+    @Html.AntiForgeryToken()
+</form>
+<div class="container">
+    <h3 class="text-center" style="color: black;">Filtreleme</h3>
+    <form method="GET" action="/Etkinlikler/Filtrele" id="filter-form" style="margin-bottom: 20px;">
+        <div class="row">
+            <!-- İlgi Alanı Dropdown -->
+            <div class="col-md-6 mb-3">
+                <label for="ilgiAlani" class="form-label">İlgi Alanı</label>
+                <select id="ilgiAlani" name="ilgiAlaniId" class="form-control">
+                    <option value="">Tüm İlgi Alanları</option>
+                    @if (ViewBag.IlgiAlanlari != null)
+                    {
+                        foreach (var ilgiAlani in ViewBag.IlgiAlanlari)
+                        {
+                            <option value="@ilgiAlani.ID">@ilgiAlani.Ad</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="">İlgi alanları yüklenemedi</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Kategori Dropdown -->
+            <div class="col-md-6 mb-3">
+                <label for="kategori" class="form-label">Kategori</label>
+                <select id="kategori" name="kategoriId" class="form-control" disabled>
+                    <option value="">Önce İlgi Alanı Seçiniz</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrele</button>
+    </form>
+</div>
+
+<hr>
+
+<div class="container mt-4">
+    <h3 class="text-center" style="color: black;">Arama</h3>
+    <form method="GET" action="/Etkinlikler/Ara" id="search-form">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="arama" class="form-label">Etkinlik Adı</label>
+                <input type="text" id="arama" name="arama" class="form-control" placeholder="Etkinlik adını girin...">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Ara</button>
+    </form>
+</div>
+
+
+<div class="container mt-4" style="background-color: #F0F8FF; min-height: 100vh; padding: 20px;">
+    <h2 class="text-center mb-4" style="color: black;">Tüm Etkinlikler</h2>
+    <div class="row">
+        @foreach (var etkinlik in Model)
+        {
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 480px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+                    <!-- Favori Kalbi -->
+                    <div class="favori-icon" data-id="@etkinlik.ID" style="position: absolute; top: 10px; right: 10px; cursor: pointer; z-index: 10;">
+                        <i class="bi @(etkinlik.Favoriler != null && etkinlik.Favoriler.Any(f => f.KullanıcıID == userId) ? "bi-heart-fill active" : "bi-heart")"></i>
+
+                    </div>
+
+                    <!-- Etkinlik Resmi -->
+                    <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                        <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+
+                    <!-- Kart İçeriği -->
+                    <div class="card-body text-center">
+                        <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                        <p style="color: #000000;">
+                            <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                            <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                        </p>
+                        <p style="color: #000000;">
+                            <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                            <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                        </p>
+                        <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                            <strong>Konum:</strong> @etkinlik.Konum
+                        </p>
+
+                        <p class="favori-sayisi" style="color: #000000; font-size: 1.2rem; margin-top: 10px;">
+                            <i class="bi bi-heart-fill" style="color: red;"></i> Favorilenme Sayısı: <span class="favori-sayisi-span">@etkinlik.FavoriSayisi</span>
+                        </p>
+
+                        <a href="/EtkinlikDetay/Index?id=@etkinlik.ID" class="btn btn-primary" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+
+<style>
+    .hover-effect:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .favori-icon i {
+        font-size: 1.8rem;
+        color: black; /* Varsayılan renk */
+        border: 2px solid black; /* Siyah çerçeve */
+        border-radius: 50%;
+        padding: 5px;
+        background-color: white; /* İçi beyaz */
+        transition: color 0.3s, background-color 0.3s;
+    }
+
+        .favori-icon i.active {
+            color: red; /* Favori olduğunda içi kırmızı */
+            background-color: white; /* Çerçeve yine beyaz */
+        }
+
+
+
+</style>
+<script>
+    document.getElementById('ilgiAlani').addEventListener('change', function () {
+        const ilgiAlaniId = this.value;
+        const kategoriDropdown = document.getElementById('kategori');
+        console.log("ilgi alanı ıd:", ilgiAlaniId);
+        if (!ilgiAlaniId) {
+            kategoriDropdown.innerHTML = '<option value="">Önce İlgi Alanı Seçiniz</option>';
+            kategoriDropdown.disabled = true;
+            return;
+        }
+        fetch(`/Etkinlikler/GetKategoriler?ilgiAlaniId=${ilgiAlaniId}`)
+            .then(response => response.json())
+            .then(data => {
+                const kategoriDropdown = document.getElementById('kategori');
+                kategoriDropdown.innerHTML = '<option value="">Tüm Kategoriler</option>'; // Varsayılan seçenek
+                data.forEach(kategori => {
+                    kategoriDropdown.innerHTML += `<option value="${kategori.id}">${kategori.ad}</option>`;
+                });
+                kategoriDropdown.disabled = false; // Dropdown aktif hale getir
+            })
+            .catch(err => console.error('Kategoriler yüklenirken hata oluştu:', err));
+
+
+    });
+</script>
+
+<script>
+    document.querySelectorAll('.favori-icon').forEach(icon => {
+        icon.addEventListener('click', function () {
+            const etkinlikId = this.getAttribute('data-id');
+            const heartIcon = this.querySelector('i');
+
+            // CSRF Token'ı formdan al
+            const csrfTokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!csrfTokenInput) {
+                console.error("CSRF token bulunamadı!");
+                return;
+            }
+
+            const csrfToken = csrfTokenInput.value;
+
+            // Fetch ile favori işlemi
+            fetch(`/Etkinlikler/FavoriEkle?etkinlikId=${etkinlikId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': csrfToken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Favori durumu güncelle
+                        if (data.isFavorite) {
+                            heartIcon.classList.add('active', 'bi-heart-fill');
+                            heartIcon.classList.remove('bi-heart');
+                        } else {
+                            heartIcon.classList.remove('active', 'bi-heart-fill');
+                            heartIcon.classList.add('bi-heart');
+                        }
+
+                        // Favori sayısını güncelle (yalnızca sayıyı değiştir)
+                        const favoriSayisiElement = this.parentElement.parentElement.querySelector('.favori-sayisi-span');
+                        if (favoriSayisiElement) {
+                            favoriSayisiElement.textContent = data.favoriSayisi;
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        });
+    });
+
+
+</script>

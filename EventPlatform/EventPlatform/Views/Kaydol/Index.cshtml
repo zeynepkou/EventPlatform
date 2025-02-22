@@ -1,0 +1,301 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Kaydol";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+   <style>
+    body {
+        background-color: #f4f6f9;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .container-fluid {
+        display: flex;
+        height: 100vh;
+    }
+
+    .image-section {
+        flex: 1;
+        background-image: url('/images/kaydolresim.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .form-section {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+        display: flex;
+        align-items: flex-start; /* Kartın üst kısmını hizalama */
+        justify-content: center;
+        background-color: #ffffff;
+        box-shadow: -10px 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 600px;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 30px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        margin-top: 20px; /* Kartın üst kısmı için görünürlük */
+    }
+
+    .register-container h2 {
+        font-size: 1.8rem;
+        color: #007bff;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+    }
+
+    .form-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        flex: 1;
+        margin-right: 10px;
+    }
+
+    .form-group:last-child {
+        margin-right: 0;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        padding: 0.8rem;
+        border-radius: 15px;
+        border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 0.75rem;
+        font-size: 1rem;
+        width: 100%;
+        border-radius: 15px;
+        transition: 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    #map {
+        height: 200px;
+        border-radius: 15px;
+        margin-top: 1rem;
+    }
+
+    select[multiple] {
+        height: auto;
+    }
+
+    @@media (max-width: 768px) {
+        .container-fluid {
+            flex-direction: column;
+        }
+
+        .image-section {
+            height: 300px;
+            background-position: top;
+        }
+
+        .form-section {
+            height: calc(100vh - 300px);
+        }
+
+        .form-row {
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+    }
+
+        .form-check {
+            margin-bottom: 0.5rem;
+        }
+
+        .form-check-label {
+            margin-left: 0.5rem;
+            font-size: 1rem;
+        }
+</style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="image-section"></div>
+        <div class="form-section">
+            <div class="register-container">
+                <h2>Kayıt Ol</h2>
+                <form method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ProfilFotografi" class="form-label">Profil Fotoğrafı</label>
+                            <input type="file" class="form-control" id="ProfilFotografi" name="ProfilFotografi" accept="image/*" onchange="previewImage(event)">
+                            <!-- Profil fotoğrafı için önizleme -->
+                            <div id="profile-image-container" style="margin-top: 5px;">
+                                <img id="profile-image" src="" alt="Profil Fotoğrafı" style="display: none; max-width: 20%; border-radius: 15px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="Ad" class="form-label">Ad</label>
+                            <input type="text" class="form-control" id="Ad" name="Ad" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Soyad" class="form-label">Soyad</label>
+                            <input type="text" class="form-control" id="Soyad" name="Soyad" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="KullaniciAdi" class="form-label">Kullanıcı Adı</label>
+                            <input type="text" class="form-control" id="KullaniciAdi" name="KullaniciAdi" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Sifre" class="form-label">Şifre</label>
+                            <input type="password" class="form-control" id="Sifre" name="Sifre" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Eposta" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="Eposta" name="Eposta" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="DogumTarihi" class="form-label">Doğum Tarihi</label>
+                            <input type="date" class="form-control" id="DogumTarihi" name="DogumTarihi" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Cinsiyet" class="form-label">Cinsiyet</label>
+                            <select class="form-select" id="Cinsiyet" name="Cinsiyet" required>
+                                <option value="Erkek">Erkek</option>
+                                <option value="Kadın">Kadın</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Konum" class="form-label">Konum</label>
+                            <input type="text" class="form-control" id="Konum" name="Konum" readonly>
+                        </div>
+                    </div>
+                    <div id="map"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="TelefonNumarasi" class="form-label">Telefon Numarası</label>
+                            <input type="tel" class="form-control" id="TelefonNumarasi" name="TelefonNumarasi">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="IlgiAlanlari" class="form-label">İlgi Alanlarınız</label>
+                        <div id="IlgiAlanlari" style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
+                            @foreach (var ilgiAlani in ViewBag.IlgiAlanlari)
+                            {
+                                <div class="form-check" style="margin-bottom: 5px;">
+                                    <input class="form-check-input" type="checkbox" id="IlgiAlan_@ilgiAlani.ID" name="IlgiAlanlari" value="@ilgiAlani.ID" style="width: 14px; height: 14px;">
+                                    <label class="form-check-label" for="IlgiAlan_@ilgiAlani.ID" style="font-size: 0.9rem; margin-left: 5px;">
+                                        @ilgiAlani.Ad
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    var map = L.map('map').setView([39.9334, 32.8597], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    var marker;
+    map.on('click', function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lng]).addTo(map);
+        document.getElementById("Konum").value = "Lat: " + lat + ", Lng: " + lng;
+    });
+
+
+    // Ters Geokodlama API ile koordinatları adrese çevirme
+    function getAddressFromCoordinates(lat, lng) {
+        var url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.address) {
+                    var address = `${data.address.city || ''} ${data.address.suburb || ''} ${data.address.road || ''}`;
+                    document.getElementById("Konum").value = address || "Adres bulunamadı";
+                }
+            })
+            .catch(error => {
+                console.error('Geocoding hatası:', error);
+                document.getElementById("Konum").value = "Adres alınamadı";
+            });
+    }
+</script>
+
+<script>
+    // Profil fotoğrafını önizleme fonksiyonu
+    function previewImage(event) {
+        const file = event.target.files[0]; // İlk dosyayı al
+        const reader = new FileReader();
+
+        // Dosya okuma işlemi tamamlandığında görseli güncelle
+        reader.onload = function (e) {
+            const image = document.getElementById("profile-image");
+            image.src = e.target.result; // Görselin src değerini dosya içeriği ile değiştir
+            image.style.display = 'block'; // Görseli görünür yap
+        };
+
+        // Dosya okuma işlemi başlat
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+</script>

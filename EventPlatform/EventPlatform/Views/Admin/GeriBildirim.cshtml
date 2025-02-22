@@ -1,0 +1,147 @@
+﻿@{
+    ViewData["Title"] = "Geri Bildirimler";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header text-white text-center" style="background-color: #4a69bd;">
+            <h3>Geri Bildirimler</h3>
+        </div>
+        <br />
+        <div class="card-body">
+            <div class="row">
+                <!-- Okunmamış Geri Bildirimler -->
+                <div class="col-md-6">
+                    <div class="card mb-4" style="height: 500px; overflow-y: auto;">
+                        <div class="card-header bg-danger text-white text-center">
+                            <h5>Okunmamış Geri Bildirimler</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (ViewBag.OkunmamisGeriBildirimler.Count > 0)
+                            {
+                                <table class="table table-bordered table-striped text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Gönderen Fotoğraf</th>
+                                            <th>Etkinlik Adı</th>
+                                            <th>Geri Bildirim</th>
+                                            <th>Gönderim Tarihi</th>
+                                            <th>İşlem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var geriBildirim in ViewBag.OkunmamisGeriBildirimler)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <img src="@(string.IsNullOrEmpty(geriBildirim.Gonderici?.ProfilFotografiYolu)
+                                                                  ? "/images/default-profile.png"
+                                                                  : geriBildirim.Gonderici.ProfilFotografiYolu)"
+                                                         alt="Gönderen Fotoğrafı"
+                                                         class="rounded-circle"
+                                                         style="width: 60px; height: 50px;">
+                                                </td>
+                                                <td>@geriBildirim.Etkinlik?.EtkinlikAdi</td>
+                                                <td>@geriBildirim.GeriBidirimMetni</td>
+                                                <td>@geriBildirim.GonderimZamani.ToString("yyyy-MM-dd HH:mm")</td>
+                                                <td>
+                                                    <form asp-action="GeriBildirimOkundu" asp-controller="Admin" method="post">
+                                                        <input type="hidden" name="id" value="@geriBildirim.ID" />
+                                                        <button type="submit" class="btn btn-success btn-sm">Okundu</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p class="text-center text-muted">Okunmamış geri bildirim yok.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Okunmuş Geri Bildirimler -->
+                <div class="col-md-6">
+                    <div class="card mb-4" style="height: 500px; overflow-y: auto;">
+                        <div class="card-header bg-success text-white text-center">
+                            <h5>Okunmuş Geri Bildirimler</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (ViewBag.OkunmusGeriBildirimler.Count > 0)
+                            {
+                                <table class="table table-bordered table-striped text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Gönderen Fotoğraf</th>
+                                            <th>Etkinlik Adı</th>
+                                            <th>Geri Bildirim</th>
+                                            <th>Gönderim Tarihi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var geriBildirim in ViewBag.OkunmusGeriBildirimler)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <img src="@(string.IsNullOrEmpty(geriBildirim.Gonderici?.ProfilFotografiYolu)
+                                                                  ? "/images/default-profile.png"
+                                                                  : geriBildirim.Gonderici.ProfilFotografiYolu)"
+                                                         alt="Gönderen Fotoğrafı"
+                                                         class="rounded-circle"
+                                                         style="width: 60px; height: 50px;">
+                                                </td>
+                                                <td>@geriBildirim.Etkinlik?.EtkinlikAdi</td>
+                                                <td>@geriBildirim.GeriBidirimMetni</td>
+                                                <td>@geriBildirim.GonderimZamani.ToString("yyyy-MM-dd HH:mm")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p class="text-center text-muted">Okunmuş geri bildirim yok.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table {
+        font-size: 0.9rem;
+        text-align: center; /* Tablodaki metni ortalar */
+    }
+
+        .table th,
+        .table td {
+            vertical-align: middle; /* Dikey hizalama */
+            text-align: center; /* Yatay hizalama */
+        }
+
+        .table img {
+            display: block;
+            margin: 0 auto;
+        }
+
+    .card-body {
+        padding: 10px;
+    }
+
+    .card-header {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+</style>

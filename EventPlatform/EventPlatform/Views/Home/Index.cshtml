@@ -1,0 +1,511 @@
+﻿@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<form id="csrf-token-form">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="container-fluid" style="background-color: #F0F8FF; min-height: 100vh; padding: 20px;">
+    <!-- Bildirim Zili -->
+    <div class="position-absolute top-0 end-0 p-3">
+        <div class="dropdown">
+            <button class="btn btn-light rounded-circle shadow" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false" style="position: relative;">
+                <i class="bi bi-bell" style="font-size: 1.5rem; color: #4a69bd;"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @ViewBag.BildirimSayisi
+                </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="dropdownNotification" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                @if (ViewBag.Bildirimler != null && ViewBag.Bildirimler.Count > 0)
+                {
+                    foreach (var bildirim in ViewBag.Bildirimler)
+                    {
+                        <li class="d-flex align-items-start p-2 border-bottom">
+                            <i class="bi bi-info-circle text-primary me-2" style="font-size: 1.2rem;"></i>
+                            <div class="flex-grow-1">
+                                <p class="mb-1" style="font-size: 0.9rem; font-weight: 500;">@bildirim.Mesaj</p>
+                                <small class="text-muted">@bildirim.Tarih.ToString("dd MMM yyyy HH:mm")</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-success ms-2" onclick="markAsRead(@bildirim.ID, this)">
+                                <i class="bi bi-check"></i>
+                            </button>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="text-center text-muted py-2">Hiç bildirim yok.</li>
+                }
+            </ul>
+        </div>
+    </div>
+    <!-- Kullanıcı Bilgileri -->
+    <div class="row align-items-center mb-4">
+        <div class="col-auto">
+            <!-- Profil Fotoğrafı -->
+            <img src="@ViewBag.KullaniciVerileri.ProfilFotografiYolu" alt="Profil Fotoğrafı"
+                 style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        </div>
+        <div class="col">
+            <!-- Kullanıcı Adı ve Toplam Puan -->
+            <h3 style="color: #4a69bd; font-weight: bold; margin: 0;">Hoşgeldiniz, @ViewBag.KullaniciVerileri.KullaniciAdi</h3>
+            <p style="color: #4a69bd; font-size: 1.4rem; font-weight: bold; margin: 5px 0;">Toplam Puanınız: @ViewBag.KullaniciPuan</p>
+        </div>
+    </div>
+
+    <!-- Yeni Etkinlik Ekle Butonu -->
+    <div class="text-center mt-5">
+        <a asp-controller="Create" asp-action="Create" class="btn btn-lg" style="background-color: #7089CB; color: white; border-radius: 12px; padding: 10px 40px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">Yeni Etkinlik Ekle</a>
+    </div>
+
+   
+    <!-- Katılım Geçmişine Göre Etkinlikler -->
+    <div class="mb-5 position-relative">
+        <h4 style="color: #4a69bd; font-weight: bold;">Katılım Geçmişine Göre Etkinlikler</h4>
+
+        <div id="KatilimGecmisiCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+            <div class="carousel-inner">
+                @if (ViewBag.KatilimGecmisineGoreEtkinlikler != null && ViewBag.KatilimGecmisineGoreEtkinlikler.Count > 0)
+                {
+                    @for (int i = 0; i < ViewBag.KatilimGecmisineGoreEtkinlikler.Count; i += 4)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row">
+                                @for (int j = i; j < i + 4 && j < ViewBag.KatilimGecmisineGoreEtkinlikler.Count; j++)
+                                {
+                                    var etkinlik = ViewBag.KatilimGecmisineGoreEtkinlikler[j];
+                                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 480px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+                                            <!-- Favori Kalbi -->
+                                            <div class="favori-icon" data-id="@etkinlik.ID" style="position: absolute; top: 10px; right: 10px; cursor: pointer; z-index: 10;">
+                                                <i class="bi @(ViewBag.FavoriDurumlari[etkinlik.ID] ? "bi-heart-fill active" : "bi-heart")"></i>
+
+                                            </div>
+
+                                            <!-- Etkinlik Resmi -->
+                                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+
+                                            <!-- Kart İçeriği -->
+                                            <div class="card-body text-center">
+                                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                                                <p style="color: #000000;">
+                                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                                </p>
+                                                <p style="color: #000000;">
+                                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                                </p>
+                                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Konum:</strong> @etkinlik.Konum
+                                                </p>
+
+                                                <p class="favori-sayisi" style="color: #000000; font-size: 1.2rem; margin-top: 10px;">
+                                                    <i class="bi bi-heart-fill" style="color: red;"></i> Favorilenme Sayısı: <span class="favori-sayisi-span">@etkinlik.FavoriSayisi</span>
+                                                </p>
+
+                                                <a href="/EtkinlikDetay/Index?id=@etkinlik.ID" class="btn btn-primary" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted text-center py-3">
+                        <p>Katılım geçmişine göre etkinlik bulunamadı.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Sol ve Sağ Oklar (Dışarıda) -->
+        <button class="carousel-control-prev position-absolute top-50 translate-middle-y" type="button" data-bs-target="#KatilimGecmisiCarousel" data-bs-slide="prev" style="left: -50px;">
+            <span class="carousel-control-prev-icon bg-dark p-2 rounded-circle" aria-hidden="true"></span>
+            <span class="visually-hidden">Önceki</span>
+        </button>
+        <button class="carousel-control-next position-absolute top-50 translate-middle-y" type="button" data-bs-target="#KatilimGecmisiCarousel" data-bs-slide="next" style="right: -50px;">
+            <span class="carousel-control-next-icon bg-dark p-2 rounded-circle" aria-hidden="true"></span>
+            <span class="visually-hidden">Sonraki</span>
+        </button>
+    </div>
+
+    <!-- İlgi Alanına Göre Etkinlikler -->
+    <div class="mb-5 position-relative">
+        <h4 style="color: #4a69bd; font-weight: bold;">İlgi Alanına Göre Etkinlikler</h4>
+        <div id="IlgiAlaniCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+            <div class="carousel-inner">
+                @if (ViewBag.IlgiAlaninaGoreEtkinlikler != null && ViewBag.IlgiAlaninaGoreEtkinlikler.Count > 0)
+                {
+                    @for (int i = 0; i < ViewBag.IlgiAlaninaGoreEtkinlikler.Count; i += 4)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row">
+                                @for (int j = i; j < i + 4 && j < ViewBag.IlgiAlaninaGoreEtkinlikler.Count; j++)
+                                {
+                                    var etkinlik = ViewBag.IlgiAlaninaGoreEtkinlikler[j];
+                                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 480px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+                                            <!-- Favori Kalbi -->
+                                            <div class="favori-icon" data-id="@etkinlik.ID" style="position: absolute; top: 10px; right: 10px; cursor: pointer; z-index: 10;">
+                                                <i class="bi @(ViewBag.FavoriDurumlari[etkinlik.ID] ? "bi-heart-fill active" : "bi-heart")"></i>
+
+                                            </div>
+
+                                            <!-- Etkinlik Resmi -->
+                                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+
+                                            <!-- Kart İçeriği -->
+                                            <div class="card-body text-center">
+                                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                                                <p style="color: #000000;">
+                                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                                </p>
+                                                <p style="color: #000000;">
+                                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                                </p>
+                                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Konum:</strong> @etkinlik.Konum
+                                                </p>
+
+                                                <p class="favori-sayisi" style="color: #000000; font-size: 1.2rem; margin-top: 10px;">
+                                                    <i class="bi bi-heart-fill" style="color: red;"></i> Favorilenme Sayısı: <span class="favori-sayisi-span">@etkinlik.FavoriSayisi</span>
+                                                </p>
+
+                                                <a href="/EtkinlikDetay/Index?id=@etkinlik.ID" class="btn btn-primary" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center">
+                        <p style="color: gray;">İlgi alanınıza uygun etkinlik bulunamadı.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Sol ve Sağ Oklar (Dışarıda) -->
+        <button class="carousel-control-prev position-absolute top-50 translate-middle-y" type="button" data-bs-target="#IlgiAlaniCarousel" data-bs-slide="prev" style="left: -50px;">
+            <span class="carousel-control-prev-icon bg-dark p-2 rounded-circle" aria-hidden="true"></span>
+            <span class="visually-hidden">Önceki</span>
+        </button>
+        <button class="carousel-control-next position-absolute top-50 translate-middle-y" type="button" data-bs-target="#IlgiAlaniCarousel" data-bs-slide="next" style="right: -50px;">
+            <span class="carousel-control-next-icon bg-dark p-2 rounded-circle" aria-hidden="true"></span>
+            <span class="visually-hidden">Sonraki</span>
+        </button>
+    </div>
+
+
+    <!-- Coğrafi Konuma Göre Etkinlikler -->
+    <div class="mb-5 position-relative">
+        <h4 style="color: #4a69bd; font-weight: bold;">Coğrafi Konuma Göre Etkinlikler</h4>
+        <div id="CografiKonumaGoreCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+            <div class="carousel-inner">
+                @if (ViewBag.Etkinlikler != null && ViewBag.Etkinlikler.Count > 0)
+                {
+                    @for (int i = 0; i < ViewBag.Etkinlikler.Count; i += 4)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row">
+                                @for (int j = i; j < i + 4 && j < ViewBag.Etkinlikler.Count; j++)
+                                {
+                                    var etkinlik = ViewBag.Etkinlikler[j];
+                                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 480px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+                                            <!-- Favori Kalbi -->
+                                            <div class="favori-icon" data-id="@etkinlik.ID" style="position: absolute; top: 10px; right: 10px; cursor: pointer; z-index: 10;">
+                                                <i class="bi @(ViewBag.FavoriDurumlari[etkinlik.ID] ? "bi-heart-fill active" : "bi-heart")"></i>
+
+                                            </div>
+
+                                            <!-- Etkinlik Resmi -->
+                                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+
+                                            <!-- Kart İçeriği -->
+                                            <div class="card-body text-center">
+                                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                                                <p style="color: #000000;">
+                                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                                </p>
+                                                <p style="color: #000000;">
+                                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                                </p>
+                                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                                    <strong>Konum:</strong> @etkinlik.Konum
+                                                </p>
+
+                                                <p class="favori-sayisi" style="color: #000000; font-size: 1.2rem; margin-top: 10px;">
+                                                    <i class="bi bi-heart-fill" style="color: red;"></i> Favorilenme Sayısı: <span class="favori-sayisi-span">@etkinlik.FavoriSayisi</span>
+                                                </p>
+
+                                                <a href="/EtkinlikDetay/Index?id=@etkinlik.ID" class="btn btn-primary" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-3">
+                        <p>Coğrafi konumunuza uygun etkinlik bulunamadı.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Sol ve Sağ Oklar (Dışarıda) -->
+        <button class="carousel-control-prev position-absolute top-50 translate-middle-y" type="button" data-bs-target="#CografiKonumaGoreCarousel" data-bs-slide="prev" style="left: -50px;">
+            <span class="carousel-control-prev-icon bg-dark p-2 rounded-circle" aria-hidden="true"></span>
+            <span class="visually-hidden">Önceki</span>
+        </button>
+        <button class="carousel-control-next position-absolute top-50 translate-middle-y" type="button" data-bs-target="#CografiKonumaGoreCarousel" data-bs-slide="next" style="right: -50px;">
+            <span class="carousel-control-next-icon bg-dark p-2 rounded-circle" aria-hidden="true"></span>
+            <span class="visually-hidden">Sonraki</span>
+        </button>
+    </div>
+
+        
+
+</div>
+
+<!-- Harita Container -->
+<!-- Harita Container -->
+<div id="map" style="height: 500px;"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<script>
+    // Kırmızı kullanıcı konumu marker'ı
+    var userIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/149/149071.png', // Kullanıcı kırmızı ikon URL'si
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
+
+    // Kullanıcı ve etkinlik koordinatlarını saklamak için değişken
+    var map;
+
+    // Kullanıcı konumunu almak için AJAX isteği
+    fetch('/Home/GetUserLocation')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var konum = data.location.split(',');
+                var lat = parseFloat(konum[0].replace("Lat:", "").trim());
+                var lng = parseFloat(konum[1].replace("Lng:", "").trim());
+
+                // Kullanıcı konumuna göre haritayı başlat
+                map = L.map('map').setView([lat, lng], 12);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                // Kullanıcı marker'ı ekle
+                L.marker([lat, lng], { icon: userIcon })
+                    .addTo(map)
+                    .bindPopup("<b>Kullanıcı Konumu</b>")
+                    .openPopup();
+
+                // Etkinlik marker'larını eklemek için bir sonraki isteği çağır
+                loadEventMarkers(map);
+            } else {
+                // Eğer kullanıcı konumu bulunamazsa, varsayılan bir konuma geçiş yap
+                console.error(data.message);
+                map = L.map('map').setView([41.01866120303227, 29.09544067498994], 8);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+        });
+
+    // Etkinliklerin konumlarını almak için AJAX isteği
+    function loadEventMarkers(map) {
+        fetch('/Home/GetEventLocations')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    data.etkinlikKonumlari.forEach(function (konum) {
+                        var lat = parseFloat(konum.latitude);
+                        var lng = parseFloat(konum.longitude);
+                        var etkinlikAdi = konum.name;
+
+                        // Etkinlik detay sayfasına gidecek URL
+                        var etkinlikDetayUrl = `/EtkinlikDetay/Index?id=${konum.id}`;
+
+                        // Her etkinliği haritaya marker olarak ekle
+                        L.marker([lat, lng]) // Varsayılan marker
+                            .addTo(map)
+                            .bindPopup(
+                                `<b>Etkinlik:</b> ${etkinlikAdi}<br>
+                                    <a href="${etkinlikDetayUrl}" style="color: purple; text-decoration: underline;">Detaylara Git</a>`
+                            );
+                    });
+                } else {
+                    console.error(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+            });
+    }
+</script>
+
+<script>
+    function markAsRead(notificationId, buttonElement) {
+        fetch(`/Admin/MarkAsRead?id=${notificationId}`, { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    // Bildirimi UI'dan kaldır
+                    const listItem = buttonElement.closest('li');
+                    listItem.remove();
+
+                    // Bildirim sayısını güncelle
+                    const badge = document.querySelector('#dropdownNotification .badge');
+                    const currentCount = parseInt(badge.textContent.trim()) || 0;
+                    if (currentCount > 1) {
+                        badge.textContent = currentCount - 1;
+                    } else {
+                        badge.remove();
+                    }
+                } else {
+                    alert('Bildirimi işaretleme sırasında bir hata oluştu.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+
+
+
+
+
+<style>
+    body {
+        background-color: #F0F8FF;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: auto;
+        height: auto;
+        background: transparent;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: black;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+    }
+
+
+    .favori-icon i {
+        font-size: 1.8rem;
+        color: black; /* Varsayılan renk */
+        border: 2px solid black; /* Siyah çerçeve */
+        border-radius: 50%;
+        padding: 5px;
+        background-color: white; /* İçi beyaz */
+        transition: color 0.3s, background-color 0.3s;
+    }
+
+        .favori-icon i.active {
+            color: red; /* Favori olduğunda içi kırmızı */
+            background-color: white; /* Çerçeve yine beyaz */
+        }
+</style>
+
+<script>
+    document.querySelectorAll('.favori-icon').forEach(icon => {
+        icon.addEventListener('click', function () {
+            const etkinlikId = this.getAttribute('data-id');
+            const heartIcon = this.querySelector('i');
+
+            // CSRF Token'ı formdan al
+            const csrfTokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!csrfTokenInput) {
+                console.error("CSRF token bulunamadı!");
+                return;
+            }
+
+            const csrfToken = csrfTokenInput.value;
+
+            // Fetch ile favori işlemi
+            fetch(`/Etkinlikler/FavoriEkle?etkinlikId=${etkinlikId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': csrfToken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Favori durumu güncelle
+                        if (data.isFavorite) {
+                            heartIcon.classList.add('active', 'bi-heart-fill');
+                            heartIcon.classList.remove('bi-heart');
+                        } else {
+                            heartIcon.classList.remove('active', 'bi-heart-fill');
+                            heartIcon.classList.add('bi-heart');
+                        }
+
+                        // Favori sayısını güncelle (yalnızca sayıyı değiştir)
+                        const favoriSayisiElement = this.parentElement.parentElement.querySelector('.favori-sayisi-span');
+                        if (favoriSayisiElement) {
+                            favoriSayisiElement.textContent = data.favoriSayisi;
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        });
+    });
+
+
+</script>
+
+
+
+

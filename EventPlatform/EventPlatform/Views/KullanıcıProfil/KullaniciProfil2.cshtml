@@ -1,0 +1,281 @@
+﻿@{
+    ViewData["Title"] = "Kullanıcı Profili";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var errorMessage = TempData["ErrorMessage"];
+}
+
+<div class="container mt-5 ">
+    <h2 class="text-center" style="color: black;">Kullanıcı Profili</h2>
+
+    <div class="row justify-content-center mt-4">
+        <!-- Kullanıcı Bilgileri ve Harita Kartı -->
+        <div class="col-md-10">
+            <div class="card shadow-lg rounded-4 p-4 mb-4">
+                <div class="row">
+                    <!-- Kullanıcı Bilgileri Formu (Solda) -->
+                    <div class="col-md-6">
+                        <form method="post" asp-controller="Admin" asp-action="KullaniciProfilGuncelle" enctype="multipart/form-data">
+                            <input type="hidden" name="ID" value="@Model.ID" />
+                            <!-- Profil Fotoğrafı -->
+                            <div class="text-center mb-3">
+                                <img id="profilePicture"
+                                     src="@(string.IsNullOrEmpty(Model.ProfilFotografiYolu) ? "~/images/default.png" : Model.ProfilFotografiYolu)"
+                                     class="rounded-circle img-fluid mb-3"
+                                     alt="Profil Fotoğrafı"
+                                     style="width: 120px; height: 120px; object-fit: cover; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+
+                                <button id="changePhotoBtn" class="btn btn-outline-secondary btn-sm" type="button">Fotoğrafı Değiştir</button>
+                                <input id="fileInput" type="file" name="ProfilFotografi" style="display: none;" accept="image/*" />
+                            </div>
+
+                            <!-- Form Alanları -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="kullaniciAdi">Kullanıcı Adı:</label>
+                                    <input type="text" class="form-control rounded-pill" id="kullaniciAdi" name="KullaniciAdi" value="@Model.KullaniciAdi">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="eposta">E-posta:</label>
+                                    <input type="text" class="form-control rounded-pill" id="eposta" name="Eposta" value="@Model.Eposta">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="ad">Ad:</label>
+                                    <input type="text" class="form-control rounded-pill" id="ad" name="Ad" value="@Model.Ad">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="soyad">Soyad:</label>
+                                    <input type="text" class="form-control rounded-pill" id="soyad" name="Soyad" value="@Model.Soyad">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="dogumTarihi">Doğum Tarihi:</label>
+                                    <input type="date" class="form-control rounded-pill" id="dogumTarihi" name="DogumTarihi" value="@Model.DogumTarihi?.ToString("yyyy-MM-dd")">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cinsiyet">Cinsiyet:</label>
+                                    <select class="form-control rounded-pill" id="cinsiyet" name="Cinsiyet">
+                                        <option value="Erkek" asp-for="Cinsiyet" asp-items="@(Model.Cinsiyet)">Erkek</option>
+                                        <option value="Kadın" asp-for="Cinsiyet" asp-items="@Model.Cinsiyet)">Kadın</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefon">Telefon Numarası:</label>
+                                    <input type="text" class="form-control rounded-pill" id="telefon" name="TelefonNumarasi" value="@Model.TelefonNumarasi">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="konum">Konum:</label>
+                                    <input type="text" class="form-control rounded-pill" id="konum" name="Konum" value="@Model.Konum">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="IlgiAlanlari" class="form-label">İlgi Alanlarınız</label>
+                                <div id="IlgiAlanlari" style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
+                                    @foreach (var ilgiAlani in ViewBag.TumIlgiAlanlari)
+                                    {
+                                        <div class="form-check" style="margin-bottom: 5px;">
+                                            <input class="form-check-input" type="checkbox" id="IlgiAlan_@ilgiAlani.ID" name="selectedIlgiAlanlari" value="@ilgiAlani.ID"
+                                            @if (ViewBag.SeciliIlgiAlanlari.Contains(ilgiAlani.ID))
+                                            {
+                                                <text>checked</text>
+                                            }>
+
+                                            <label class="form-check-label" for="IlgiAlan_@ilgiAlani.ID" style="font-size: 0.9rem; margin-left: 5px;">
+                                                @ilgiAlani.Ad
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+
+
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Bilgileri Güncelle</button>
+                        </form>
+                    </div>
+
+                    <!-- Harita Kartı (Sağda) -->
+                    <div class="col-md-6">
+                        <h4 class="text-center mb-3">Konum Haritası</h4>
+                        <div id="map" style="height: 450px; width: 100%;"></div> <!-- Map is now wider and taller -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <!-- Katılacağı Etkinlikler -->
+        <div class="col-md-6">
+            <div class="card shadow-lg rounded-4 p-4 mb-4" style="max-height: 400px; ">
+                <h4 class="text-center">Katılacağı Etkinlikler</h4>
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Etkinlik Adı</th>
+                                <th>Tarih</th>
+                                <th>Yer</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.KatilacagiEtkinlikler is List<Yazlab2.Models.Etkinlik> katilacagiEtkinlikler)
+                            {
+                                foreach (var etkinlik in katilacagiEtkinlikler)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="EtkinlikDetay" asp-action="Index" asp-route-id="@etkinlik.ID">
+                                                @etkinlik.EtkinlikAdi
+                                            </a>
+                                        </td>
+                                        <td>@etkinlik.Tarih.ToString("dd.MM.yyyy")</td>
+                                        <td>@etkinlik.Konum</td>
+                                        <td>@etkinlik.Aciklama</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">Katılacağınız etkinlik yok.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Katıldığı Etkinlikler -->
+        <div class="col-md-6">
+            <div class="card shadow-lg rounded-4 p-4" style="max-height: 400px; ">
+                <h4 class="text-center">Katıldığı Etkinlikler</h4>
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Etkinlik Adı</th>
+                                <th>Tarih</th>
+                                <th>Yer</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.KatildigiEtkinlikler is List<Yazlab2.Models.Etkinlik> katildigiEtkinlikler)
+                            {
+                                foreach (var etkinlik in katildigiEtkinlikler)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="EtkinlikDetay" asp-action="Index" asp-route-id="@etkinlik.ID">
+                                                @etkinlik.EtkinlikAdi
+                                            </a>
+                                        </td>
+                                        <td>@etkinlik.Tarih.ToString("dd.MM.yyyy")</td>
+                                        <td>@etkinlik.Konum</td>
+                                        <td>@etkinlik.Aciklama</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">Katıldığınız etkinlik yok.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- Harita için div -->
+<div id="map" style="height: 400px; margin-top: 20px;"></div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Kullanıcı konumunu al
+        var kullanıcıKonum = "@Model.Konum";
+
+        // Varsayılan bir konum tanımla (örneğin etkinlik konumu)
+        var initialLat = 40.801465703863364; // Varsayılan enlem
+        var initialLng = 29.408962662255327; // Varsayılan boylam
+
+        // Eğer kullanıcı konumu geçerliyse, onu kullan
+        if (kullanıcıKonum && kullanıcıKonum.includes("Lat") && kullanıcıKonum.includes("Lng")) {
+            try {
+                var etkinlikCoords = kullanıcıKonum.match(/[-+]?[0-9]*\.?[0-9]+/g);
+                initialLat = parseFloat(etkinlikCoords[0]);
+                initialLng = parseFloat(etkinlikCoords[1]);
+            } catch (error) {
+                console.error("Kullanıcı konumu ayrıştırılamadı:", error);
+            }
+        } else {
+            console.warn("Kullanıcı konumu bulunamadı veya geçersiz.");
+        }
+
+        // Haritayı başlat
+        var map = L.map('map').setView([initialLat, initialLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Başlangıç konumuna bir marker ekle
+        var marker = L.marker([initialLat, initialLng])
+            .addTo(map)
+            .bindPopup("Kullanıcı Konumu")
+            .openPopup();
+
+        // Haritaya tıklandığında yeni marker ekle ve konumu güncelle
+        map.on('click', function (e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            // Eski marker'ı kaldır ve yenisini ekle
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map);
+
+            // Formdaki konum bilgisini güncelle
+            document.getElementById("konum").value = "Lat: " + lat + ", Lng: " + lng;
+        });
+    });
+</script>
+<script>
+    document.getElementById("changePhotoBtn").addEventListener("click", function () {
+        document.getElementById("fileInput").click();
+    });
+
+    document.getElementById("fileInput").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("profilePicture").src = e.target.result; // Fotoğrafı anlık olarak göster
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+
+

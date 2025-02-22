@@ -1,0 +1,128 @@
+﻿@model List<Yazlab2.Models.Kullanıcı>
+
+@{
+    Layout = "_AdminLayout";
+}
+
+@{
+    var kullanıcılarVePuanlar = ViewBag.KullanıcılarVePuanlar;
+}
+
+<div class="container mt-4">
+
+    <div class="text-center mb-4">
+        <h2 class="page-title-oval">Kullanıcı Yönetimi</h2>
+    </div>
+
+    <div class="row">
+        @foreach (var item in kullanıcılarVePuanlar)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+               
+                <div class="card shadow-sm" style="border-radius: 12px; overflow: hidden; height: 280px; position: relative;">
+                    <div class="card-body d-flex align-items-center">
+                        <!-- Profil Fotoğrafı -->
+                        <img src="@(!string.IsNullOrEmpty(item.Kullanıcı.ProfilFotografiYolu) ? item.Kullanıcı.ProfilFotografiYolu : "/images/default-user.png")"
+                             class="rounded-circle me-3 shadow-sm"
+                             style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #4a69bd;"
+                             alt="Profil Fotoğrafı">
+
+                        <!-- Kullanıcı Bilgileri -->
+                        <div class="ms-3">
+                            <p class="mb-1" style="font-size: 1.1rem; font-weight: bold; color: #333;">
+                                Kullanıcı Adı: <span style="font-weight: normal;">@item.Kullanıcı.KullaniciAdi</span>
+                            </p>
+                            <p class="mb-1" style="font-size: 1.1rem; font-weight: bold; color: #333;">
+                                Ad: <span style="font-weight: normal;">@item.Kullanıcı.Ad</span>
+                            </p>
+                            <p class="mb-1" style="font-size: 1.1rem; font-weight: bold; color: #333;">
+                                Soyad: <span style="font-weight: normal;">@item.Kullanıcı.Soyad</span>
+                            </p>
+                            <p class="mb-1" style="font-size: 1.1rem; font-weight: bold; color: #333;">
+                                Puan: <span style="font-weight: normal;">@item.ToplamPuan</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Butonlar -->
+                    <div class="d-flex justify-content-end align-items-center" style="padding: 10px 15px;">
+                        <a href="/Admin/KullanıcıProfil2/@item.Kullanıcı.ID"
+                           class="btn btn-primary me-2"
+                           style="background-color: #4a69bd; border: none; height: 40px; width: 180px; font-size: 0.9rem; display: flex; justify-content: center; align-items: center;">
+                            Detaylı Görüntüle
+                        </a>
+                        <form asp-action="KullaniciSil" asp-controller="Admin" method="post">
+                            <input type="hidden" name="id" value="@item.Kullanıcı.ID" />
+                            <button type="submit" class="btn btn-danger"
+                                    style="height: 40px; width: 100px; font-size: 0.9rem; display: flex; justify-content: center; align-items: center;">
+                                Sil
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa; /* Daha açık bir arka plan rengi */
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative; /* Butonların doğru yerleşimi için */
+    }
+
+        .card:hover {
+            transform: scale(1.02); /* Kart büyütme efekti */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Daha belirgin gölge */
+        }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .btn {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .btn:hover {
+            transform: scale(1.05); /* Buton büyütme efekti */
+        }
+
+    h2 {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .page-title-oval {
+        font-size: 2rem; /* Yazı boyutu */
+        font-weight: bold; /* Kalın yazı */
+        color: white; /* Beyaz yazı rengi */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern bir yazı tipi */
+        text-transform: uppercase; /* Harfleri büyük yap */
+        letter-spacing: 1.5px; /* Harf arası boşluk */
+        background: linear-gradient(90deg, #4a69bd, #6a89cc); /* Degrade arka plan */
+        padding: 15px 30px; /* İç boşluk */
+        border-radius: 30px; /* Oval kenarlar */
+        display: inline-block; /* Blok seviyesi eleman */
+        border: 3px solid #4a69bd; /* Çerçeve */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Hafif gölge */
+        position: relative; /* Alt çizgi için konumlandırma */
+    }
+
+        .page-title-oval:after {
+            content: ""; /* Çizgi eklemek için boş içerik */
+            position: absolute;
+            width: 50%; /* Çizginin genişliği */
+            height: 3px; /* Çizginin yüksekliği */
+            background-color: white; /* Çizgi rengi */
+            bottom: -10px; /* Çizginin başlığın altına konumu */
+            left: 50%; /* Ortalamak için başlangıç noktası */
+            transform: translateX(-50%); /* Ortalamak için kaydırma */
+        }
+</style>

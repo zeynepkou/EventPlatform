@@ -1,0 +1,113 @@
+﻿@model IEnumerable<Yazlab2.Models.Mesaj>
+@using System.Security.Claims
+
+<div class="container mt-4">
+   
+    <h2 class="text-center text-primary font-weight-bold mb-4" style="font-size: 2.5rem;">Genel Sohbet</h2>
+
+    <div class="row">
+        <!-- Sol Tarafta Resim -->
+        <div class="col-md-3 d-flex justify-content-center align-items-center">
+            <img src="/images/talking.gif" alt="Chat Animation" class="img-fluid"
+                 style="max-width:300px; height: 400px; border-radius: 15px; margin-top: -1.5cm;" />
+        </div>
+
+        <!-- Sağ Tarafta Sohbet Alanı -->
+        <div class="col-md-9">
+            <div class="border rounded p-3 bg-light" style="height: 400px; overflow-y: scroll;">
+                @foreach (var mesaj in Model.OrderBy(m => m.GonderimZamani))
+                {
+                    @if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId) && mesaj.GondericiID == userId)
+                    {
+                       
+                        <div class="d-flex justify-content-end mb-3">
+                            <div class="message-container d-flex justify-content-end">
+                                
+                                <img src="@mesaj.Gonderici.ProfilFotografiYolu" alt="Profil Resmi" class="rounded-circle me-2" style="width: 40px; height: 40px;" />
+                                <div class="message-bubble bg-primary text-white p-2 rounded-3">
+                                    <strong>@mesaj.Gonderici.Ad</strong>
+                                    <p class="mb-0">@mesaj.MesajMetni</p>
+                                    <small class="text-muted">@mesaj.GonderimZamani.ToString("g")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        
+                        <div class="d-flex justify-content-start mb-3">
+                            <div class="message-container d-flex">
+                                
+                                <img src="@mesaj.Gonderici.ProfilFotografiYolu" alt="Profil Resmi" class="rounded-circle me-2" style="width: 40px; height: 40px;" />
+                                <div class="message-bubble bg-light text-black p-2 rounded-3">
+                                    <strong>@mesaj.Gonderici.Ad</strong>
+                                    <p class="mb-0">@mesaj.MesajMetni</p>
+                                    <small class="text-muted">@mesaj.GonderimZamani.ToString("g")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <!-- Mesaj Gönderme Formu -->
+            <form asp-action="SendMessage" method="post" class="mt-3">
+                <div class="input-group">
+                    <input type="text" name="mesajMetni" class="form-control" placeholder="Mesajınızı yazın..." required />
+                    <button type="submit" class="btn btn-primary">Gönder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+    .message-bubble {
+        max-width: 60%;
+        word-wrap: break-word;
+        border-radius: 15px;
+    }
+
+    .message-container {
+        max-width: 80%;
+    }
+
+    .message-bubble p {
+        margin: 0;
+    }
+
+    .message-bubble.bg-primary {
+        border-radius: 15px;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    /* Profil Resmi */
+    .message-container img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Kendi Mesajlarının Kutusunu Dar ve Uzun Yapma */
+    .message-bubble.bg-primary {
+        max-width: 300%;
+        margin-bottom: 5px;
+    }
+
+    /* Diğer Kullanıcıların Mesajlarının Kutusunu Düzenleme */
+    .message-bubble.bg-light {
+        max-width: 300%;
+        margin-bottom: 5px;
+    }
+
+    /* Başlık Stilini Güçlendirme */
+    h2 {
+        font-size: 2.5rem; /* Font büyüklüğünü artırdık */
+        color: #007bff; /* Başlık rengini mavi yapıyoruz */
+        font-weight: bold; /* Kalın yazı stili */
+        text-transform: uppercase; /* Başlık büyük harf olacak */
+        margin-bottom: 20px; /* Alt boşluk ekledik */
+    }
+</style>

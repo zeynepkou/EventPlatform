@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "İlgi Alanı ve Kategori Ekle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">İlgi Alanı ve Kategori Ekle</h1>
+
+    <!-- Mesaj Gösterimi -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-@TempData["MessageType"] alert-dismissible fade show" role="alert">
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <script>
+            setTimeout(function () {
+                location.reload();
+            }, 5000); // Mesaj 5 saniye boyunca görünsün
+        </script>
+        
+    }
+
+    <div class="card p-4" style="border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+        <form asp-action="AddIlgiAlani2" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="Ad" class="control-label">Yeni İlgi Alanı</label>
+                <input type="text" id="Ad" name="Ad" class="form-control" placeholder="Yeni ilgi alanı girin" required />
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">İlgi Alanı Ekle</button>
+        </form>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="card p-4 mt-4" style="border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+        <form asp-action="AddKategori2" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="IlgiAlaniID" class="control-label">Mevcut İlgi Alanları</label>
+                <select id="IlgiAlaniID" name="IlgiAlaniID" class="form-control mb-3" required>
+                    <option value="">Bir ilgi alanı seçin</option>
+                    @if (ViewBag.IlgiAlanlari != null && ((List<IlgiAlani>)ViewBag.IlgiAlanlari).Any())
+                    {
+                        @foreach (var ilgiAlani in ViewBag.IlgiAlanlari)
+                        {
+                            <option value="@ilgiAlani.ID">@ilgiAlani.Ad</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="">Hiçbir ilgi alanı bulunamadı</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Ad" class="control-label">Yeni Kategori</label>
+                <input type="text" id="Ad" name="Ad" class="form-control" placeholder="Yeni kategori girin" required />
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Kategori Ekle</button>
+        </form>
+    </div>
+
+    <!-- Geri Butonu -->
+    <div class="text-center mt-4">
+        <a href="@Url.Action("AdminCreate", "Create")" class="btn btn-secondary">Geri Dön</a>
+    </div>
+</div>
+

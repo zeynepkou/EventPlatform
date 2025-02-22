@@ -1,0 +1,171 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Yazlab2
+build_property.RootNamespace = Yazlab2
+build_property.ProjectDir = C:\Users\HpNtb\OneDrive\Masaüstü\Yazlab2\Yazlab2\Yazlab2\Yazlab2\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\HpNtb\OneDrive\Masaüstü\Yazlab2\Yazlab2\Yazlab2\Yazlab2
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Account/SifremiUnuttum.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxTaWZyZW1pVW51dHR1bS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Account/SifreSifirla.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxTaWZyZVNpZmlybGEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Admin/AdminIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Admin/GeriBildirim.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VyaUJpbGRpcmltLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Admin/KullanıcıYönetimi.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cS3VsbGFuxLFjxLFZw7ZuZXRpbWkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Admin/Rapor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmFwb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Chat/AdminChat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxBZG1pbkNoYXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Chat/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Create/AdminCreate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlYXRlXEFkbWluQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Create/AdminCreateIlgiAlani.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlYXRlXEFkbWluQ3JlYXRlSWxnaUFsYW5pLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Create/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlYXRlXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Create/CreateIlgiAlani.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlYXRlXENyZWF0ZUlsZ2lBbGFuaS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/AdminEditEtkinlik.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxBZG1pbkVkaXRFdGtpbmxpay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/AdminEtkinlikDetay.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxBZG1pbkV0a2lubGlrRGV0YXkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/AdminGecmisEtkinlik.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxBZG1pbkdlY21pc0V0a2lubGlrLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/Conflict.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxDb25mbGljdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/EditEtkinlik.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxFZGl0RXRraW5saWsuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/EtkinlikBildirim.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxFdGtpbmxpa0JpbGRpcmltLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/EtkinlikDetay/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtEZXRheVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Etkinlikler/AdminEtkinlik.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtsZXJcQWRtaW5FdGtpbmxpay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Etkinlikler/Favoriler.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtsZXJcRmF2b3JpbGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Etkinlikler/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtsZXJcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Etkinlikler/KullanıcıEtkinlikleri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXRraW5saWtsZXJcS3VsbGFuxLFjxLFFdGtpbmxpa2xlcmkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Kaydol/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2F5ZG9sXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/KullanıcıProfil/AdminProfili.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS3VsbGFuxLFjxLFQcm9maWxcQWRtaW5Qcm9maWxpLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/KullanıcıProfil/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS3VsbGFuxLFjxLFQcm9maWxcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/KullanıcıProfil/KullaniciProfil2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS3VsbGFuxLFjxLFQcm9maWxcS3VsbGFuaWNpUHJvZmlsMi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/LoginPage/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5QYWdlXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Shared/_AdminLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HpNtb/OneDrive/Masaüstü/Yazlab2/Yazlab2/Yazlab2/Yazlab2/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-cczhbkm7eq

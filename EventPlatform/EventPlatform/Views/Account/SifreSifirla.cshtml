@@ -1,0 +1,45 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Şifre Sıfırlama";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .reset-password-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-password-container">
+        <h3>Yeni Şifre Belirle</h3>
+        <form asp-action="SifreSifirla" method="post">
+            <input type="hidden" name="token" value="@ViewData["Token"]" />
+            <div class="form-group">
+                <label for="newPassword">Yeni Şifre</label>
+                <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Yeni şifrenizi girin" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block mt-3">Şifreyi Güncelle</button>
+        </form>
+    </div>
+</body>
+</html>

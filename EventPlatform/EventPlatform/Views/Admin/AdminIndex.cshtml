@@ -1,0 +1,356 @@
+﻿@model AdminIndexViewModel
+@{
+    ViewData["Title"] = "Admin Ana Sayfası";
+    Layout = "_AdminLayout";
+}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-auto">
+            <!-- Admin Profil Fotoğrafı -->
+            <img src="@ViewBag.AdminProfilFoto" alt="Admin Profil Fotoğrafı"
+                 style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+        </div>
+
+
+        <div class="col" style="margin-top: 50px;">
+           
+            <h3 style="color: #4a69bd; font-weight: bold;">Hoşgeldiniz, Admin</h3>
+        </div>
+
+    </div>
+</div>
+
+<!-- Yeni Etkinlik Ekle Butonu -->
+<div class="text-center mt-5">
+    <a asp-controller="Create" asp-action="AdminCreate" class="btn btn-lg" style="background-color: #7089CB; color: white; border-radius: 12px; padding: 10px 40px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">Yeni Etkinlik Ekle</a>
+</div>
+
+<div class="container mt-5" style="background-color: #F0F8FF; min-height: 100vh; padding: 20px; border-radius: 12px;">
+    <div class="position-absolute top-0 end-0 p-3">
+    <div class="dropdown">
+        <button class="btn btn-light rounded-circle shadow" id="dropdownNotification" data-bs-toggle="dropdown" aria-expanded="false" style="position: relative;">
+            <i class="bi bi-bell" style="font-size: 1.5rem; color: #4a69bd;"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @ViewBag.BildirimSayisi
+            </span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="dropdownNotification" style="width: 300px; max-height: 400px; overflow-y: auto;">
+            @if (ViewBag.Bildirimler != null && ViewBag.Bildirimler.Count > 0)
+            {
+                foreach (var bildirim in ViewBag.Bildirimler)
+                {
+                    <li class="d-flex align-items-start p-2 border-bottom">
+                        <i class="bi bi-info-circle text-primary me-2" style="font-size: 1.2rem;"></i>
+                        <div class="flex-grow-1">
+                            <p class="mb-1" style="font-size: 0.9rem; font-weight: 500;">@bildirim.Mesaj</p>
+                            <small class="text-muted">@bildirim.Tarih.ToString("dd MMM yyyy HH:mm")</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-success ms-2" onclick="markAsRead(@bildirim.ID, this)">
+                            <i class="bi bi-check"></i>
+                        </button>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="text-center text-muted py-2">Hiç bildirim yok.</li>
+            }
+        </ul>
+    </div>
+</div>
+    <!-- Sekmeler -->
+    <div class="d-flex justify-content-center mb-4">
+        <button id="btnOnayBekleyen" class="custom-tab-btn active-tab" onclick="showSection('onayBekleyen')">Onay Bekleyen Etkinlikler</button>
+        <button id="btnOnaylanmis" class="custom-tab-btn" onclick="showSection('onaylanmis')">Onaylanmış Etkinlikler</button>
+        <button id="btnSilinmis" class="custom-tab-btn" onclick="showSection('silinmis')"><i class="bi bi-trash"></i> Silinmiş Etkinlikler</button>
+    </div>
+
+    <!-- Onay Bekleyen Etkinlikler -->
+    <div id="onayBekleyen" class="event-section">
+        <h3 style="color: #4a69bd;">Onay Bekleyen Etkinlikler</h3>
+        <div class="row">
+            @if (Model.OnayBekleyenEtkinlikler.Any())
+            {
+                @foreach (var etkinlik in Model.OnayBekleyenEtkinlikler)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 500px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+
+                            <!-- Etkinlik Resmi -->
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+
+                            
+                            <div class="card-body text-center">
+                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                                <p style="color: #000000;">
+                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                </p>
+                                <p style="color: #000000;">
+                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                </p>
+                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Konum:</strong> @etkinlik.Konum
+                                </p>
+
+                                <!-- Onayla ve Sil Butonları -->
+                                <div class="d-flex justify-content-center">
+                                    <form asp-action="Onayla" asp-controller="Admin" method="post" class="mx-1">
+                                        <input type="hidden" name="id" value="@etkinlik.ID" />
+                                        <button type="submit" class="btn btn-success btn-sm">Onayla</button>
+                                    </form>
+                                    <form asp-action="OnayBeklemeSil" asp-controller="Admin" method="post" class="mx-1">
+                                        <input type="hidden" name="id" value="@etkinlik.ID" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Sil</button>
+                                    </form>
+                                   
+                                    <a href="/EtkinlikDetay/AdminEditEtkinlik?id=@etkinlik.ID" class="btn btn-warning btn-sm mx-1">Düzenle</a>
+                                </div>
+
+                                
+                                <a href="/EtkinlikDetay/AdminEtkinlikDetay?id=@etkinlik.ID" class="btn btn-primary mt-2" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center">Onay bekleyen etkinlik yok.</p>
+            }
+        </div>
+    </div>
+
+
+    <!-- Onaylanmış Etkinlikler -->
+    <div id="onaylanmis" class="event-section d-none">
+        <h3 style="color: #4a69bd;">Onaylanmış Etkinlikler</h3>
+        <div class="row">
+            @if (Model.OnaylanmisEtkinlikler.Any())
+            {
+                @foreach (var etkinlik in Model.OnaylanmisEtkinlikler)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 450px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+
+                            <!-- Etkinlik Resmi -->
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+
+                            
+                            <div class="card-body text-center">
+                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                                <p style="color: #000000;">
+                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                </p>
+                                <p style="color: #000000;">
+                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                </p>
+                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Konum:</strong> @etkinlik.Konum
+                                </p>
+
+                                <a href="/EtkinlikDetay/AdminEtkinlikDetay?id=@etkinlik.ID" class="btn btn-primary mt-2" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center">Onaylanmış etkinlik yok.</p>
+            }
+        </div>
+    </div>
+
+
+    <!-- Silinmiş Etkinlikler -->
+    <div id="silinmis" class="event-section d-none">
+        <h3 style="color: #4a69bd;">Silinmiş Etkinlikler</h3>
+        <div class="row">
+            @if (Model.SilinmisEtkinlikler.Any())
+            {
+                @foreach (var etkinlik in Model.SilinmisEtkinlikler)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card event-card hover-effect" style="background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; height: 520px; padding-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;">
+
+                            <!-- Etkinlik Resmi -->
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                <img src="@etkinlik.EtkinlikResmi" alt="@etkinlik.EtkinlikAdi" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+
+                            
+                            <div class="card-body text-center">
+                                <h5 style="color: #4a69bd; font-weight: bold;">@etkinlik.EtkinlikAdi</h5>
+
+                                <p style="color: #000000;">
+                                    <i class="bi bi-calendar" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Tarih:</strong> @etkinlik.Tarih.ToShortDateString()
+                                </p>
+                                <p style="color: #000000;">
+                                    <i class="bi bi-clock" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Saat:</strong> @etkinlik.Saat.ToString(@"hh\:mm")
+                                </p>
+                                <p style="color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <i class="bi bi-geo-alt" style="color: #4a69bd; margin-right: 5px;"></i>
+                                    <strong>Konum:</strong> @etkinlik.Konum
+                                </p>
+
+                                <!-- Geri Dönüşüm ve Sil Butonları -->
+                                <div class="d-flex justify-content-center">
+                                    
+                                    <form asp-action="GeriDonusum" asp-controller="Admin" method="post" class="mx-1">
+                                        <input type="hidden" name="id" value="@etkinlik.ID" />
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Onay Beklemeye Al
+                                        </button>
+                                    </form>
+
+                                    <!-- Sil Butonu -->
+                                    <form asp-action="OnaySil2" asp-controller="Admin" method="post" class="mx-1">
+                                        <input type="hidden" name="id" value="@etkinlik.ID" />
+                                        <button type="submit" class="btn btn-danger btn-sm"> Sil
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <a href="/EtkinlikDetay/AdminEtkinlikDetay?id=@etkinlik.ID" class="btn btn-primary mt-2" style="background-color: #4a69bd; border: none;">Detayları Görüntüle</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center">Silinmiş etkinlik yok.</p>
+            }
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    function showSection(sectionId) {
+        // Tüm bölümleri gizle
+        document.querySelectorAll('.event-section').forEach(function (section) {
+            section.classList.add('d-none');
+        });
+
+        // Tıklanan butona bağlı olarak bölümü göster
+        document.getElementById(sectionId).classList.remove('d-none');
+
+        // Aktif buton stilini değiştir
+        document.querySelectorAll('.btn').forEach(function (btn) {
+            btn.classList.remove('active-tab');
+        });
+        document.getElementById('btn' + sectionId.charAt(0).toUpperCase() + sectionId.slice(1)).classList.add('active-tab');
+    }
+</script>
+<script>
+    function markAsRead(notificationId, buttonElement) {
+        fetch(`/Admin/MarkAsRead?id=${notificationId}`, { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    // Bildirimi UI'dan kaldır
+                    const listItem = buttonElement.closest('li');
+                    listItem.remove();
+
+                    // Bildirim sayısını güncelle
+                    const badge = document.querySelector('#dropdownNotification .badge');
+                    const currentCount = parseInt(badge.textContent.trim()) || 0;
+                    if (currentCount > 1) {
+                        badge.textContent = currentCount - 1;
+                    } else {
+                        badge.remove();
+                    }
+                } else {
+                    alert('Bildirimi işaretleme sırasında bir hata oluştu.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+<style>
+    .hover-effect:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    .active-tab {
+        background-color: #5679c6;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+
+
+</style>
+
+
+<style>
+    /* Genel buton tasarımı */
+    .custom-tab-btn {
+        background: linear-gradient(135deg, #4a69bd, #5f8ec8);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin: 0 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+        /* Hover efekti */
+        .custom-tab-btn:hover {
+            background: linear-gradient(135deg, #5f8ec8, #4a69bd);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+    /* Aktif buton tasarımı */
+    .active-tab {
+        background: linear-gradient(135deg, #3a58a5, #4a69bd);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .custom-tab-btn.active-tab:hover {
+        background: linear-gradient(135deg, #4a69bd, #3a58a5);
+    }
+</style>
